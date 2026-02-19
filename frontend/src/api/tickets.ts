@@ -12,7 +12,7 @@ export const ticketKeys = {
   detail: (id: string) => [...ticketKeys.details(), id] as const,
 };
 
-export interface TicketsPage {
+export interface FetchTicketsResult {
   tickets: Ticket[];
   count: number;
   next: string | null;
@@ -26,7 +26,7 @@ export async function fetchTickets(params: {
   limit?: number;
   offset?: number;
   ordering?: string;
-}): Promise<TicketsPage> {
+}): Promise<FetchTicketsResult> {
   const q: Record<string, string | number> = {};
   if (params.status && params.status !== 'all') q.status = params.status;
   if (params.priority && params.priority !== 'all') q.priority = params.priority;

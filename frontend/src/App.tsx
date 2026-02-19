@@ -23,9 +23,17 @@ import TicketDetail from './pages/TicketDetail';
 import CreateTicket from './pages/CreateTicket';
 import AdminDashboard from './pages/AdminDashboard';
 
+function LoadingSpinner() {
+  return (
+    <div className="flex min-h-[200px] items-center justify-center" role="status" aria-label="در حال بارگذاری">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+    </div>
+  );
+}
+
 function PrivateRoute({ children, adminOnly }: { children: React.ReactNode; adminOnly?: boolean }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <LoadingSpinner />;
   if (!user) return <Navigate to="/login" replace />;
   if (adminOnly && !user.is_staff) return <Navigate to="/tickets" replace />;
   return <>{children}</>;
@@ -33,7 +41,7 @@ function PrivateRoute({ children, adminOnly }: { children: React.ReactNode; admi
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <LoadingSpinner />;
   if (user) return <Navigate to="/tickets" replace />;
   return <>{children}</>;
 }

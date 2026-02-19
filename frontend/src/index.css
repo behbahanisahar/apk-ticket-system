@@ -22,11 +22,3 @@
   font-family: Vazir, Tahoma, Arial, sans-serif !important;
 }
 
-@layer utilities {
-  .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20;
-  }
-  .glass-dark {
-    @apply bg-slate-900/5 backdrop-blur-sm border border-slate-200/60;
-  }
-}

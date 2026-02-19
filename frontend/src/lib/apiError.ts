@@ -58,6 +58,6 @@ export function getApiErrorMessage(error: unknown): string {
 export function isRetryableError(error: unknown): boolean {
   const err = error as AxiosError;
   const status = err.response?.status;
-  if (status && status >= 400 && status < 500) return false; // 4xx client errors: no retry
+  if (status && status >= 400 && status < 500) return false;
   return true;
 }

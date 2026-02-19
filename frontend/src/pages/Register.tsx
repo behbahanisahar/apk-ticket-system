@@ -3,9 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input } from '../components/ui';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import api from '../api/client';
+import { useFormValidation } from '../hooks/useFormValidation';
+import { TEXT, FEEDBACK } from '../theme';
 import { toast } from '../lib/toast';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type RegisterErrors = Partial<Record<'username' | 'password' | 'email' | 'first_name' | 'last_name', string>>;
 
 export default function Register() {
   const [username, setUsername] = useState('');
@@ -13,36 +17,25 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  type FieldErrorKey = 'username' | 'password' | 'email' | 'first_name' | 'last_name';
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldErrorKey, string>>>({});
   const [loading, setLoading] = useState(false);
+  const { errors, validateAndSet, clearField } = useFormValidation<RegisterErrors>({});
   const navigate = useNavigate();
-
-  const validate = (): boolean => {
-    const e: Partial<Record<FieldErrorKey, string>> = {};
-    if (!firstName.trim()) e.first_name = 'نام الزامی است';
-    if (!lastName.trim()) e.last_name = 'نام خانوادگی الزامی است';
-    if (!username.trim()) e.username = 'نام کاربری الزامی است';
-    else if (username.trim().length < 3) e.username = 'نام کاربری حداقل ۳ کاراکتر باشد';
-    if (!password) e.password = 'رمز عبور الزامی است';
-    else if (password.length < 8) e.password = 'رمز عبور حداقل ۸ کاراکتر باشد';
-    if (!email.trim()) e.email = 'ایمیل الزامی است';
-    else if (!EMAIL_RE.test(email)) e.email = 'ایمیل معتبر نیست';
-    setFieldErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const clearFieldError = (key: FieldErrorKey) => {
-    setFieldErrors((p) => {
-      const next = { ...p };
-      delete next[key];
-      return next;
-    });
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    const isValid = validateAndSet(() => {
+      const err: RegisterErrors = {};
+      if (!firstName.trim()) err.first_name = 'نام الزامی است';
+      if (!lastName.trim()) err.last_name = 'نام خانوادگی الزامی است';
+      if (!username.trim()) err.username = 'نام کاربری الزامی است';
+      else if (username.trim().length < 3) err.username = 'نام کاربری حداقل ۳ کاراکتر باشد';
+      if (!password) err.password = 'رمز عبور الزامی است';
+      else if (password.length < 8) err.password = 'رمز عبور حداقل ۸ کاراکتر باشد';
+      if (!email.trim()) err.email = 'ایمیل الزامی است';
+      else if (!EMAIL_RE.test(email)) err.email = 'ایمیل معتبر نیست';
+      return err;
+    });
+    if (!isValid) return;
     setLoading(true);
     try {
       await api.post('/auth/register/', {
@@ -53,8 +46,8 @@ export default function Register() {
         last_name: lastName.trim(),
       });
       navigate('/login');
-    } catch (e) {
-      toast.error(e);
+    } catch (err) {
+      toast.error(err);
     } finally {
       setLoading(false);
     }
@@ -62,8 +55,8 @@ export default function Register() {
 
   return (
     <AuthLayout>
-      <h2 className="mb-2 text-center text-2xl font-bold text-slate-900">ثبت‌نام در سیستم تیکت</h2>
-      <p className="mb-8 text-center text-sm text-slate-600">حساب جدید بسازید</p>
+      <h2 className={`mb-2 text-center text-2xl font-bold ${TEXT.heading}`}>ثبت‌نام در سیستم تیکت</h2>
+      <p className={`mb-8 text-center text-sm ${TEXT.muted}`}>حساب جدید بسازید</p>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <Input
@@ -71,10 +64,10 @@ export default function Register() {
             value={firstName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setFirstName(e.target.value);
-              clearFieldError('first_name');
+              clearField('first_name');
             }}
           />
-          {fieldErrors.first_name && <p className="mt-1 text-sm text-red-600">{fieldErrors.first_name}</p>}
+          {errors.first_name && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.first_name}</p>}
         </div>
         <div className="mb-4">
           <Input
@@ -82,10 +75,10 @@ export default function Register() {
             value={lastName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setLastName(e.target.value);
-              clearFieldError('last_name');
+              clearField('last_name');
             }}
           />
-          {fieldErrors.last_name && <p className="mt-1 text-sm text-red-600">{fieldErrors.last_name}</p>}
+          {errors.last_name && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.last_name}</p>}
         </div>
         <div className="mb-4">
           <Input
@@ -93,10 +86,10 @@ export default function Register() {
             value={username}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setUsername(e.target.value);
-              clearFieldError('username');
+              clearField('username');
             }}
           />
-          {fieldErrors.username && <p className="mt-1 text-sm text-red-600">{fieldErrors.username}</p>}
+          {errors.username && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.username}</p>}
         </div>
         <div className="mb-4">
           <Input
@@ -105,10 +98,10 @@ export default function Register() {
             value={password}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setPassword(e.target.value);
-              clearFieldError('password');
+              clearField('password');
             }}
           />
-          {fieldErrors.password && <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>}
+          {errors.password && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.password}</p>}
         </div>
         <div className="mb-4">
           <Input
@@ -117,18 +110,18 @@ export default function Register() {
             value={email}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setEmail(e.target.value);
-              clearFieldError('email');
+              clearField('email');
             }}
           />
-          {fieldErrors.email && <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>}
+          {errors.email && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.email}</p>}
         </div>
-        <Button type="submit" fullWidth size="lg" disabled={loading} className="mt-2 bg-[#ED1E23] hover:bg-[#c4181c]">
+        <Button type="submit" fullWidth size="lg" disabled={loading} className="mt-2">
           ثبت‌نام
         </Button>
       </form>
-      <p className="mt-8 text-center text-sm text-slate-600">
+      <p className={`mt-8 text-center text-sm ${TEXT.muted}`}>
         قبلاً ثبت‌نام کرده‌اید؟{' '}
-        <Link to="/login" className="font-semibold text-[#ED1E23] transition-colors hover:underline">ورود</Link>
+        <Link to="/login" className="font-semibold text-primary transition-colors hover:underline">ورود</Link>
       </p>
     </AuthLayout>
   );

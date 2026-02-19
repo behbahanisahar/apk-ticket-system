@@ -1,97 +1,87 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button, Input, Select } from '../components/ui';
+import { useNavigate } from 'react-router-dom';
+import { Button, Input, Select, BackLink } from '../components/ui';
 import { useCreateTicket } from '../hooks/useTickets';
+import { useFormValidation } from '../hooks/useFormValidation';
+import { PRIORITY_OPTIONS, TicketPriority } from '../constants/tickets';
+import { TEXT, FEEDBACK, BORDER, BG } from '../theme';
 import { toast } from '../lib/toast';
 
-const PRIORITIES = [
-  { value: 'low', label: 'کم' },
-  { value: 'medium', label: 'متوسط' },
-  { value: 'high', label: 'زیاد' },
-];
+type CreateTicketErrors = { title?: string; description?: string };
 
 export default function CreateTicket() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState('medium');
-  const [fieldErrors, setFieldErrors] = useState<{ title?: string; description?: string }>({});
+  const [priority, setPriority] = useState(TicketPriority.Medium);
+  const { errors, validateAndSet, clearField } = useFormValidation<CreateTicketErrors>({});
   const navigate = useNavigate();
   const createMutation = useCreateTicket();
 
-  const validate = (): boolean => {
-    const e: { title?: string; description?: string } = {};
-    if (!title.trim()) e.title = 'عنوان الزامی است';
-    else if (title.trim().length < 3) e.title = 'عنوان حداقل ۳ کاراکتر باشد';
-    if (!description.trim()) e.description = 'توضیحات الزامی است';
-    else if (description.trim().length < 10) e.description = 'توضیحات حداقل ۱۰ کاراکتر باشد';
-    setFieldErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    const isValid = validateAndSet(() => {
+      const err: CreateTicketErrors = {};
+      if (!title.trim()) err.title = 'عنوان الزامی است';
+      else if (title.trim().length < 3) err.title = 'عنوان حداقل ۳ کاراکتر باشد';
+      if (!description.trim()) err.description = 'توضیحات الزامی است';
+      else if (description.trim().length < 10) err.description = 'توضیحات حداقل ۱۰ کاراکتر باشد';
+      return err;
+    });
+    if (!isValid) return;
     try {
       await createMutation.mutateAsync({ title, description, priority });
       navigate('/tickets');
-    } catch (e) {
-      toast.error(e);
+    } catch (err) {
+      toast.error(err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80">
+    <div className={`min-h-screen ${BG.page}`}>
       <div className="mx-auto max-w-lg px-4 py-8">
         <div className="mb-6 flex justify-end">
-          <Link
-            to="/tickets"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-slate-600 no-underline shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">بازگشت</span>
-          </Link>
+          <BackLink to="/tickets" />
         </div>
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40">
-          <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-900">تیکت جدید</h2>
-          <p className="mb-8 text-slate-600">درخواست خود را با جزئیات ثبت کنید</p>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <Input
-              label="عنوان"
-              value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setTitle(e.target.value);
-                setFieldErrors((p) => ({ ...p, title: undefined }));
-              }}
-            />
-            {fieldErrors.title && <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>}
-          </div>
-          <div className="mb-6">
-            <Input
-              label="توضیحات"
-              multiline
-              rows={4}
-              value={description}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-                setDescription(e.target.value);
-                setFieldErrors((p) => ({ ...p, description: undefined }));
-              }}
-            />
-            {fieldErrors.description && <p className="mt-1 text-sm text-red-600">{fieldErrors.description}</p>}
-          </div>
-          <div className="mb-6">
-            <Select
-              label="اولویت"
-              options={PRIORITIES}
-              value={priority}
-              onChange={(e: { target: { value: string } }) => setPriority(e.target.value)}
-            />
-          </div>
-          <Button type="submit" size="lg" disabled={createMutation.isPending}>
-            {createMutation.isPending ? 'در حال ایجاد...' : 'ایجاد تیکت'}
-          </Button>
-        </form>
+        <div className={`rounded-2xl border ${BORDER.default} ${BG.surface} p-8 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40`}>
+          <h2 className={`mb-2 text-2xl font-bold tracking-tight ${TEXT.heading}`}>تیکت جدید</h2>
+          <p className={`mb-8 ${TEXT.muted}`}>درخواست خود را با جزئیات ثبت کنید</p>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+              <Input
+                label="عنوان"
+                value={title}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setTitle(e.target.value);
+                  clearField('title');
+                }}
+              />
+              {errors.title && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.title}</p>}
+            </div>
+            <div className="mb-6">
+              <Input
+                label="توضیحات"
+                multiline
+                rows={4}
+                value={description}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                  setDescription(e.target.value);
+                  clearField('description');
+                }}
+              />
+              {errors.description && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.description}</p>}
+            </div>
+            <div className="mb-6">
+              <Select
+                label="اولویت"
+                options={PRIORITY_OPTIONS}
+                value={priority}
+                onChange={(e: { target: { value: string } }) => setPriority(e.target.value as TicketPriority)}
+              />
+            </div>
+            <Button type="submit" size="lg" disabled={createMutation.isPending}>
+              {createMutation.isPending ? 'در حال ایجاد...' : 'ایجاد تیکت'}
+            </Button>
+          </form>
         </div>
       </div>
     </div>

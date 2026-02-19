@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { LandingBackground, LandingHero, LandingIcon, LandingFooter } from '../components/landing';
 import { APK_BRAND } from '../theme/brand';
+import { TEXT, BORDER, BG } from '../theme';
 
 export default function Landing() {
   return (
@@ -8,11 +9,11 @@ export default function Landing() {
       <header className="relative z-20 flex items-center justify-between gap-4 px-6 py-4 md:px-8">
         <Link to="/" className="flex shrink-0 items-center gap-2 no-underline">
           <img src={APK_BRAND.logoUrl} alt="APK" className="h-8 shrink-0" />
-          <span className="text-sm font-semibold text-slate-700">امن پردازان کویر</span>
+          <span className={`text-sm font-semibold ${TEXT.label}`}>امن پردازان کویر</span>
         </Link>
         <Link
           to="/login"
-          className="shrink-0 rounded-xl border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 no-underline transition-colors hover:border-[#ED1E23] hover:text-[#ED1E23]"
+          className={`shrink-0 rounded-xl border ${BORDER.medium} ${BG.surface} px-5 py-2 text-sm font-semibold ${TEXT.label} no-underline transition-colors hover:border-primary hover:text-primary`}
         >
           ورود
         </Link>

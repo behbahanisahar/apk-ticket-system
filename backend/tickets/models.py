@@ -3,15 +3,19 @@ from django.contrib.auth.models import User
 
 
 class Ticket(models.Model):
+    STATUS_OPEN = "open"
+    STATUS_IN_PROGRESS = "in_progress"
+    STATUS_CLOSED = "closed"
+
     PRIORITY_CHOICES = [
         ("low", "کم"),
         ("medium", "متوسط"),
         ("high", "زیاد"),
     ]
     STATUS_CHOICES = [
-        ("open", "باز"),
-        ("in_progress", "در حال بررسی"),
-        ("closed", "بسته"),
+        (STATUS_OPEN, "باز"),
+        (STATUS_IN_PROGRESS, "در حال بررسی"),
+        (STATUS_CLOSED, "بسته"),
     ]
 
     title = models.CharField(max_length=255)

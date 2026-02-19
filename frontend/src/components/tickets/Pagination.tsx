@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui';
+import { TEXT } from '../../theme';
 
 interface PaginationProps {
   count: number;
@@ -27,11 +28,12 @@ export function Pagination({ count, limit, offset, onPageChange }: PaginationPro
           size="sm"
           onClick={() => onPageChange(Math.max(0, offset - limit))}
           disabled={!hasPrev}
+          aria-label="صفحه قبلی"
         >
           <ChevronRight className="h-4 w-4" />
           قبلی
         </Button>
-        <span className="text-sm text-slate-600">
+        <span className={`text-sm ${TEXT.muted}`}>
           صفحه {currentPage} از {totalPages}
         </span>
         <Button
@@ -39,6 +41,7 @@ export function Pagination({ count, limit, offset, onPageChange }: PaginationPro
           size="sm"
           onClick={() => onPageChange(offset + limit)}
           disabled={!hasNext}
+          aria-label="صفحه بعدی"
         >
           بعدی
           <ChevronLeft className="h-4 w-4" />

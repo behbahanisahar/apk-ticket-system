@@ -1,35 +1,25 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Trash2, Pencil, X, MessageCircle, Shield } from 'lucide-react';
-import { Button, Input, Select } from '../components/ui';
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Trash2, Pencil, X, MessageCircle, Shield } from 'lucide-react';
+import { Button, Input, Select, BackLink } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getDisplayName } from '../types';
 import { formatDateTime } from '../lib/dateUtils';
 import { toast } from '../lib/toast';
 import { useTicket, useRespondToTicket, useDeleteTicket, useUpdateTicketStatus, useUpdateTicket } from '../hooks/useTickets';
-
-const statusLabel: Record<string, string> = { open: 'باز', in_progress: 'در حال بررسی', closed: 'بسته' };
-const statusColorClass: Record<string, string> = {
-  open: 'bg-emerald-100 text-emerald-800 ring-emerald-200/60',
-  in_progress: 'bg-amber-100 text-amber-800 ring-amber-200/60',
-  closed: 'bg-slate-100 text-slate-600 ring-slate-200/60',
-};
-const statusBorderClass: Record<string, string> = {
-  open: 'border-s-emerald-400',
-  in_progress: 'border-s-amber-400',
-  closed: 'border-s-slate-400',
-};
-const priorityLabel: Record<string, string> = { low: 'کم', medium: 'متوسط', high: 'زیاد' };
-const STATUS_OPTS = [
-  { value: 'open', label: 'باز' },
-  { value: 'in_progress', label: 'در حال بررسی' },
-  { value: 'closed', label: 'بسته' },
-];
-const PRIORITY_OPTS = [
-  { value: 'low', label: 'کم' },
-  { value: 'medium', label: 'متوسط' },
-  { value: 'high', label: 'زیاد' },
-];
+import { useQueryErrorToast } from '../hooks/useQueryErrorToast';
+import { useConfirm } from '../hooks/useConfirm';
+import {
+  STATUS_OPTIONS,
+  PRIORITY_OPTIONS,
+  STATUS_COLOR_CLASS,
+  STATUS_BORDER_CLASS,
+  getStatusLabel,
+  getPriorityLabel,
+  TicketStatus,
+  TicketPriority,
+} from '../constants/tickets';
+import { TEXT, BORDER, BG, FEEDBACK } from '../theme';
 
 export default function TicketDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,7 +30,7 @@ export default function TicketDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
-  const [editPriority, setEditPriority] = useState('');
+  const [editPriority, setEditPriority] = useState<TicketPriority>(TicketPriority.Medium);
 
   const { data: ticket, isLoading, error, isError } = useTicket(id);
   const respondMutation = useRespondToTicket(id);
@@ -48,21 +38,23 @@ export default function TicketDetail() {
   const updateStatusMutation = useUpdateTicketStatus();
   const updateTicketMutation = useUpdateTicket(id);
 
-  useEffect(() => {
-    if (isError && error) toast.error(error);
-  }, [isError, error]);
+  useQueryErrorToast(isError, error);
+
+  const deleteConfirm = useConfirm<number>((ticketId) => {
+    deleteMutation.mutate(ticketId, {
+      onSuccess: () => {
+        toast.success('تیکت حذف شد');
+        navigate('/tickets');
+      },
+      onError: (e) => toast.error(e),
+    });
+  });
 
   if (isError) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
         <div className="mb-6 flex justify-end">
-          <Link
-            to="/tickets"
-            className="inline-flex items-center gap-1 text-slate-600 no-underline hover:text-primary"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">بازگشت</span>
-          </Link>
+          <BackLink to="/tickets" variant="minimal" />
         </div>
       </div>
     );
@@ -70,21 +62,10 @@ export default function TicketDetail() {
 
   if (isLoading || !ticket) return null;
 
-  const canRespond = ticket.status !== 'closed' && (ticket.user?.id === user?.id || user?.is_staff);
-  const canEdit = ticket.user?.id === user?.id && ticket.status === 'open';
+  const canRespond = ticket.status !== TicketStatus.Closed && (ticket.user?.id === user?.id || user?.is_staff);
+  const canEdit = ticket.user?.id === user?.id && ticket.status === TicketStatus.Open;
   const canDelete = canEdit;
   const canChangeStatus = user?.is_staff ?? false;
-
-  const onDelete = () => {
-    if (!confirm('آیا از حذف این تیکت اطمینان دارید؟')) return;
-    deleteMutation.mutate(ticket.id, {
-      onSuccess: () => {
-        toast.success('تیکت حذف شد');
-        navigate('/tickets');
-      },
-      onError: (e) => toast.error(e),
-    });
-  };
 
   const startEdit = () => {
     setEditTitle(ticket.title);
@@ -128,29 +109,22 @@ export default function TicketDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80">
+    <div className={`min-h-screen ${BG.page}`}>
       <div className="mx-auto max-w-3xl px-4 py-6">
         <div className="mb-6 flex justify-end">
-          <Link
-            to="/tickets"
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-slate-600 no-underline shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="text-sm font-medium">بازگشت</span>
-          </Link>
+          <BackLink to="/tickets" />
         </div>
 
-        {/* Ticket header card */}
         <div
-          className={`mb-8 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40 ${statusBorderClass[ticket.status] || ''} border-s-4`}
+          className={`mb-8 rounded-2xl border ${BORDER.default} ${BG.surface} p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40 ${STATUS_BORDER_CLASS[ticket.status] ?? ''} border-s-4`}
         >
           <div className="mb-4 flex flex-wrap items-center gap-3">
-            <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono text-slate-600">#{ticket.id}</span>
+            <span className={`rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono ${TEXT.muted}`}>#{ticket.id}</span>
             {canChangeStatus ? (
               <div className="min-w-[140px]">
                 <Select
                   label="وضعیت"
-                  options={STATUS_OPTS}
+                  options={STATUS_OPTIONS}
                   value={ticket.status}
                   onChange={(e: { target: { value: string } }) =>
                     updateStatusMutation.mutate(
@@ -162,12 +136,12 @@ export default function TicketDetail() {
                 />
               </div>
             ) : (
-              <span className={`rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 ${statusColorClass[ticket.status] || 'bg-slate-100'}`}>
-                {statusLabel[ticket.status]}
+              <span className={`rounded-lg px-3 py-1.5 text-xs font-semibold ring-1 ${STATUS_COLOR_CLASS[ticket.status] ?? BG.fallbackBadge}`}>
+                {getStatusLabel(ticket.status)}
               </span>
             )}
-            <span className="rounded-lg border border-slate-200/80 px-2.5 py-1 text-xs font-medium text-slate-600">
-              {priorityLabel[ticket.priority]}
+            <span className={`rounded-lg border ${BORDER.default} px-2.5 py-1 text-xs font-medium ${TEXT.muted}`}>
+              {getPriorityLabel(ticket.priority)}
             </span>
             <span className="text-xs text-slate-500">
               ایجاد: {formatDateTime(ticket.created_at)}
@@ -190,9 +164,9 @@ export default function TicketDetail() {
                 />
                 <Select
                   label="اولویت"
-                  options={PRIORITY_OPTS}
+                  options={PRIORITY_OPTIONS}
                   value={editPriority}
-                  onChange={(e: { target: { value: string } }) => setEditPriority(e.target.value)}
+                  onChange={(e: { target: { value: string } }) => setEditPriority(e.target.value as TicketPriority)}
                 />
                 <div className="flex gap-2">
                   <Button type="submit" disabled={updateTicketMutation.isPending}>
@@ -206,39 +180,58 @@ export default function TicketDetail() {
               </form>
             ) : (
               <>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">{ticket.title}</h1>
+                <h1 className={`text-2xl font-bold tracking-tight ${TEXT.heading}`}>{ticket.title}</h1>
                 {canEdit && (
-                  <div className="flex shrink-0 gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={startEdit}>
-                      <Pencil className="h-4 w-4" />
-                      ویرایش
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={onDelete}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      حذف
-                    </Button>
+                  <div className="flex shrink-0 flex-wrap gap-2">
+                    {deleteConfirm.confirming ? (
+                      <>
+                        <span className={`flex items-center text-sm ${TEXT.muted}`}>آیا از حذف اطمینان دارید؟</span>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deleteConfirm.confirm()}
+                          disabled={deleteMutation.isPending}
+                        >
+                          بله، حذف
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" onClick={deleteConfirm.cancel}>
+                          انصراف
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button type="button" variant="outline" size="sm" onClick={startEdit}>
+                          <Pencil className="h-4 w-4" />
+                          ویرایش
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deleteConfirm.show(ticket.id)}
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          حذف
+                        </Button>
+                      </>
+                    )}
                   </div>
                 )}
               </>
             )}
           </div>
           {!isEditing && (
-            <p className="mt-5 whitespace-pre-wrap rounded-xl bg-slate-50/80 p-5 text-slate-700 leading-[1.6]">
+            <p className={`mt-5 whitespace-pre-wrap rounded-xl ${BG.muted} p-5 ${TEXT.label} leading-[1.6]`}>
               {ticket.description}
             </p>
           )}
         </div>
 
-        {/* Chat-style responses */}
         <div className="mb-5 flex items-center gap-2">
-          <MessageCircle className="h-5 w-5 text-slate-500" />
-          <h2 className="text-lg font-bold text-slate-900">
+          <MessageCircle className={`h-5 w-5 ${TEXT.subtle}`} />
+          <h2 className={`text-lg font-bold ${TEXT.heading}`}>
             پاسخ‌ها {ticket.responses?.length ? `(${ticket.responses.length})` : ''}
           </h2>
         </div>
@@ -252,7 +245,7 @@ export default function TicketDetail() {
               >
                 <div
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-md ${
-                    isAdmin ? 'bg-primary text-white ring-2 ring-primary/30' : 'bg-slate-300 text-slate-700'
+                    isAdmin ? 'bg-primary text-white ring-2 ring-primary/30' : BG.avatar
                   }`}
                 >
                   {(getDisplayName(r.user) || '?').charAt(0).toUpperCase()}
@@ -261,12 +254,12 @@ export default function TicketDetail() {
                   className={`min-w-0 max-w-[85%] rounded-2xl px-5 py-4 shadow-md ${
                     isAdmin
                       ? 'bg-primary/10 border border-primary/20 text-slate-800'
-                      : 'bg-white border border-slate-200/80 text-slate-800'
+                      : `bg-white border ${BORDER.default} text-slate-800`
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-slate-900">{getDisplayName(r.user)}</span>
+                      <span className={`text-sm font-bold ${TEXT.heading}`}>{getDisplayName(r.user)}</span>
                       {isAdmin && (
                         <span className="inline-flex items-center gap-0.5 rounded bg-primary/20 px-1.5 py-0.5 text-xs font-semibold text-primary">
                           <Shield className="h-3 w-3" />
@@ -274,7 +267,7 @@ export default function TicketDetail() {
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-slate-500">{formatDateTime(r.created_at)}</span>
+                    <span className={`text-xs ${TEXT.subtle}`}>{formatDateTime(r.created_at)}</span>
                   </div>
                   <p className="mt-3 whitespace-pre-wrap text-sm leading-[1.6]">{r.message}</p>
                 </div>
@@ -282,9 +275,9 @@ export default function TicketDetail() {
             );
           })}
           {(!ticket.responses || ticket.responses.length === 0) && (
-            <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 py-16 text-center">
-              <MessageCircle className="mx-auto mb-3 h-12 w-12 text-slate-300" />
-              <p className="text-sm text-slate-500">هنوز پاسخی ثبت نشده</p>
+            <div className={`rounded-2xl border-2 border-dashed ${BORDER.dashed} bg-slate-50/60 py-16 text-center`}>
+              <MessageCircle className={`mx-auto mb-3 h-12 w-12 ${BG.emptyIcon}`} />
+              <p className={`text-sm ${TEXT.subtle}`}>هنوز پاسخی ثبت نشده</p>
             </div>
           )}
         </div>
@@ -292,7 +285,7 @@ export default function TicketDetail() {
         {canRespond && (
           <form
             onSubmit={onRespond}
-            className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40"
+            className={`rounded-2xl border ${BORDER.default} ${BG.surface} p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40`}
           >
             <Input
               label="ارسال پاسخ"
@@ -305,7 +298,7 @@ export default function TicketDetail() {
               }}
               placeholder="پاسخ خود را بنویسید..."
             />
-            {messageError && <p className="mt-2 text-sm text-red-600">{messageError}</p>}
+            {messageError && <p className={`mt-2 text-sm ${FEEDBACK.error}`}>{messageError}</p>}
             <Button type="submit" className="mt-5" disabled={respondMutation.isPending}>
               {respondMutation.isPending ? 'در حال ارسال...' : 'ارسال پاسخ'}
             </Button>

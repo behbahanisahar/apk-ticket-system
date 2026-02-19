@@ -21,12 +21,14 @@ export interface TicketResponse {
   created_at: string;
 }
 
+import type { TicketStatus, TicketPriority } from '../constants/enums';
+
 export interface Ticket {
   id: number;
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high';
-  status: 'open' | 'in_progress' | 'closed';
+  priority: TicketPriority;
+  status: TicketStatus;
   user: User;
   responses?: TicketResponse[];
   created_at: string;

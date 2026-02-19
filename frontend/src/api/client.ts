@@ -16,6 +16,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (r) => r,
   async (err: AxiosError) => {
+    // on 401: try refresh token, then retry; else redirect to login
     const orig = err.config as typeof err.config & { _retry?: boolean };
     const isLoginRequest = orig?.url?.includes('/auth/token/') && !orig?.url?.includes('/refresh/');
     if (err.response?.status === 401 && !orig._retry && !isLoginRequest) {
