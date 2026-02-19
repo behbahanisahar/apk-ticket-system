@@ -1,0 +1,18 @@
+import os
+import pytest
+
+os.environ.setdefault("USE_SQLITE", "1")
+
+from django.contrib.auth.models import User
+
+
+@pytest.fixture
+def user(db):
+    return User.objects.create_user(username="testuser", password="testpass123")
+
+
+@pytest.fixture
+def admin_user(db):
+    return User.objects.create_superuser(
+        username="admin", password="adminpass123", email="admin@test.com"
+    )
