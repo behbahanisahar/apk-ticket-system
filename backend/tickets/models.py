@@ -18,6 +18,7 @@ class Ticket(models.Model):
         (STATUS_CLOSED, "بسته"),
     ]
 
+    ticket_number = models.CharField(max_length=20, unique=True, null=True, blank=True, db_index=True)
     title = models.CharField(max_length=255)
     description = models.TextField()
     priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default="medium")
@@ -28,6 +29,14 @@ class Ticket(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+        if not self.ticket_number:
+            super().save(*args, **kwargs)
+            self.ticket_number = f"TKT-{self.id:06d}"
+            super().save(update_fields=["ticket_number"])
+        else:
+            super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

@@ -16,5 +16,7 @@ class TicketFilter(filters.FilterSet):
             return queryset
         from django.db.models import Q
         return queryset.filter(
-            Q(title__icontains=value) | Q(description__icontains=value)
+            Q(title__icontains=value)
+            | Q(description__icontains=value)
+            | Q(ticket_number__icontains=value)
         )
