@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { Button, Input, Card, CardContent } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { getDisplayName } from '../types';
 import { toast } from '../lib/toast';
 import { useTicket, useRespondToTicket, useDeleteTicket } from '../hooks/useTickets';
 
@@ -115,10 +116,10 @@ export default function TicketDetail() {
           <Card key={r.id}>
             <CardContent className="flex gap-3 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
-                {r.user?.username?.charAt(0)?.toUpperCase()}
+                {(getDisplayName(r.user) || '?').charAt(0).toUpperCase()}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold">{r.user?.username}</p>
+                <p className="text-sm font-semibold">{getDisplayName(r.user)}</p>
                 <p className="text-xs text-slate-500">{new Date(r.created_at).toLocaleDateString('fa-IR')}</p>
                 <p className="mt-2 text-sm">{r.message}</p>
               </div>

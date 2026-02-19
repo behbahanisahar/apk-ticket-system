@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button, Select, Card, CardContent, CardActions } from '../components/ui';
 import { APK_BRAND } from '../theme/brand';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
+import { getDisplayName } from '../types';
 import { Pagination } from '../components/tickets';
 import { toast } from '../lib/toast';
 
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
                     </span>
                   </div>
                   <p className="mt-2 text-sm text-slate-600">{t.description?.slice(0, 100)}...</p>
-                  <p className="mt-1 text-xs text-slate-500">کاربر: {t.user?.username}</p>
+                  <p className="mt-1 text-xs text-slate-500">کاربر: {getDisplayName(t.user)}</p>
                 </CardContent>
                 <CardActions className="flex flex-wrap gap-2 px-4 pb-4">
                   <div className="min-w-[140px]">

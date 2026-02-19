@@ -2,7 +2,15 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   is_staff: boolean;
+}
+
+export function getDisplayName(user: User | undefined | null): string {
+  if (!user) return '';
+  const full = [user.first_name, user.last_name].filter(Boolean).join(' ').trim();
+  return full || user.username;
 }
 
 export interface TicketResponse {
