@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { Button, Input, Card, CardContent } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { toast } from '../lib/toast';
-import { useTicket, useRespondToTicket } from '../hooks/useTickets';
+import { useTicket, useRespondToTicket, useDeleteTicket } from '../hooks/useTickets';
 
 const statusLabel: Record<string, string> = { open: 'باز', in_progress: 'در حال بررسی', closed: 'بسته' };
 const statusColorClass: Record<string, string> = {
@@ -23,6 +23,7 @@ export default function TicketDetail() {
 
   const { data: ticket, isLoading, error, isError } = useTicket(id);
   const respondMutation = useRespondToTicket(id);
+  const deleteMutation = useDeleteTicket();
 
   useEffect(() => {
     if (isError && error) toast.error(error);
@@ -45,6 +46,18 @@ export default function TicketDetail() {
   if (isLoading || !ticket) return null;
 
   const canRespond = ticket.status !== 'closed' && (ticket.user?.id === user?.id || user?.is_staff);
+  const canDelete = ticket.user?.id === user?.id;
+
+  const onDelete = () => {
+    if (!confirm('آیا از حذف این تیکت اطمینان دارید؟')) return;
+    deleteMutation.mutate(ticket.id, {
+      onSuccess: () => {
+        toast.success('تیکت حذف شد');
+        navigate('/tickets');
+      },
+      onError: (e) => toast.error(e),
+    });
+  };
 
   const onRespond = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,8 +91,23 @@ export default function TicketDetail() {
             {priorityLabel[ticket.priority]}
           </span>
         </div>
-        <h1 className="mb-2 text-2xl font-bold text-slate-900">{ticket.title}</h1>
-        <p className="whitespace-pre-wrap leading-relaxed text-slate-600">{ticket.description}</p>
+        <div className="flex items-start justify-between gap-4">
+          <h1 className="text-2xl font-bold text-slate-900">{ticket.title}</h1>
+          {canDelete && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={onDelete}
+              disabled={deleteMutation.isPending}
+              className="shrink-0"
+            >
+              <Trash2 className="h-4 w-4" />
+              حذف
+            </Button>
+          )}
+        </div>
+        <p className="mt-2 whitespace-pre-wrap leading-relaxed text-slate-600">{ticket.description}</p>
       </div>
       <h3 className="mb-4 text-lg font-semibold text-slate-900">پاسخ‌ها</h3>
       <div className="flex flex-col gap-4">

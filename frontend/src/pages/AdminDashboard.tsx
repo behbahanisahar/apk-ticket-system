@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Select, Card, CardContent, CardActions } from '../components/ui';
 import { APK_BRAND } from '../theme/brand';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
+import { Pagination } from '../components/tickets';
 import { toast } from '../lib/toast';
 
 const STATUS_OPTS = [
@@ -17,7 +19,17 @@ const statusColorClass: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const { data: tickets = [], isLoading } = useTickets({ status: 'all', priority: 'all', search: '' });
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
+  const { data, isLoading } = useTickets({
+    status: 'all',
+    priority: 'all',
+    search: '',
+    limit,
+    offset,
+  });
+  const tickets = data?.tickets ?? [];
+  const count = data?.count ?? 0;
   const updateStatus = useUpdateTicketStatus();
 
   const handleStatusChange = (id: number, status: string) => {
@@ -79,6 +91,14 @@ export default function AdminDashboard() {
             ))}
             {tickets.length === 0 && (
               <p className="py-16 text-center text-slate-600">تیکتی وجود ندارد</p>
+            )}
+            {count > limit && (
+              <Pagination
+                count={count}
+                limit={limit}
+                offset={offset}
+                onPageChange={setOffset}
+              />
             )}
           </div>
         )}

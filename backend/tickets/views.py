@@ -13,7 +13,7 @@ from .serializers import (
     TicketResponseCreateSerializer,
     UserSerializer,
 )
-from .permissions import IsOwnerOrAdmin
+from .permissions import IsOwnerOrAdmin, IsOwnerOnly
 from .filters import TicketFilter
 
 
@@ -63,6 +63,8 @@ class TicketViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "create"]:
             return [IsAuthenticated()]
+        if self.action == "destroy":
+            return [IsAuthenticated(), IsOwnerOnly()]
         return [IsOwnerOrAdmin()]
 
     def perform_create(self, serializer):

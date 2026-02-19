@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { APK_BRAND } from '../theme/brand';
-import { TicketCard, TicketFilters, TicketListSkeleton } from '../components/tickets';
+import { TicketCard, TicketFilters, TicketListSkeleton, Pagination } from '../components/tickets';
 import { Button } from '../components/ui';
 import { useTickets } from '../hooks/useTickets';
 import { toast } from '../lib/toast';
@@ -14,16 +14,32 @@ export default function TicketList() {
   const [priority, setPriority] = useState('all');
   const [search, setSearch] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState('');
+  const [offset, setOffset] = useState(0);
+  const limit = 20;
 
-  const { data: tickets = [], isLoading, isError, error } = useTickets({
+  const { data, isLoading, isError, error } = useTickets({
     status,
     priority,
     search: searchSubmitted,
+    limit,
+    offset,
   });
+
+  const tickets = data?.tickets ?? [];
+  const count = data?.count ?? 0;
+
+  const handlePageChange = (newOffset: number) => {
+    setOffset(newOffset);
+  };
+
+  useEffect(() => {
+    setOffset(0);
+  }, [status, priority]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearchSubmitted(search);
+    setOffset(0);
   };
 
   useEffect(() => {
@@ -68,14 +84,24 @@ export default function TicketList() {
         {isLoading ? (
           <TicketListSkeleton />
         ) : (
-          <div className="flex flex-col gap-4">
-            {tickets.map((t) => (
-              <TicketCard key={t.id} ticket={t} />
-            ))}
-            {tickets.length === 0 && (
-              <p className="py-16 text-center text-slate-600">تیکتی وجود ندارد</p>
+          <>
+            <div className="flex flex-col gap-4">
+              {tickets.map((t) => (
+                <TicketCard key={t.id} ticket={t} />
+              ))}
+              {tickets.length === 0 && (
+                <p className="py-16 text-center text-slate-600">تیکتی وجود ندارد</p>
+              )}
+            </div>
+            {count > limit && (
+              <Pagination
+                count={count}
+                limit={limit}
+                offset={offset}
+                onPageChange={handlePageChange}
+              />
             )}
-          </div>
+          </>
         )}
       </div>
     </>
