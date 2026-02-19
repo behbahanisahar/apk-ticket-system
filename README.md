@@ -7,7 +7,7 @@
 ```
 ticket-system/
 ├── backend/     # Django + DRF
-├── frontend/    # React + MUI 4
+├── frontend/    # React + shadcn + Tailwind
 ├── docker-compose.yml
 └── README.md
 ```
