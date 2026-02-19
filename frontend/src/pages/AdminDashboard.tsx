@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button, Select, Card, CardContent, CardActions } from '../components/ui';
 import { APK_BRAND } from '../theme/brand';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
+import { toast } from '../lib/toast';
 
 const STATUS_OPTS = [
   { value: 'open', label: 'باز' },
@@ -20,7 +21,10 @@ export default function AdminDashboard() {
   const updateStatus = useUpdateTicketStatus();
 
   const handleStatusChange = (id: number, status: string) => {
-    updateStatus.mutate({ id, status });
+    updateStatus.mutate(
+      { id, status },
+      { onError: (e) => toast.error(e) }
+    );
   };
 
   return (

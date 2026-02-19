@@ -1,11 +1,16 @@
+import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { isRetryableError } from './lib/apiError';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: (failureCount, error) => {
+        if (!isRetryableError(error)) return false;
+        return failureCount < 2;
+      },
       refetchOnWindowFocus: false,
     },
   },
@@ -36,6 +41,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-center" dir="rtl" richColors closeButton />
       <AuthProvider>
         <BrowserRouter>
         <Routes>

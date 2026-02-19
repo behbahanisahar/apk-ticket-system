@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,7 @@ import { APK_BRAND } from '../theme/brand';
 import { TicketCard, TicketFilters, TicketListSkeleton } from '../components/tickets';
 import { Button } from '../components/ui';
 import { useTickets } from '../hooks/useTickets';
+import { toast } from '../lib/toast';
 
 export default function TicketList() {
   const { user, logout } = useAuth();
@@ -14,7 +15,7 @@ export default function TicketList() {
   const [search, setSearch] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState('');
 
-  const { data: tickets = [], isLoading } = useTickets({
+  const { data: tickets = [], isLoading, isError, error } = useTickets({
     status,
     priority,
     search: searchSubmitted,
@@ -24,6 +25,10 @@ export default function TicketList() {
     e.preventDefault();
     setSearchSubmitted(search);
   };
+
+  useEffect(() => {
+    if (isError && error) toast.error(error);
+  }, [isError, error]);
 
   return (
     <>

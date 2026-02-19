@@ -32,9 +32,11 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('access');
           localStorage.removeItem('refresh');
+          sessionStorage.setItem('auth_expired', '1');
           window.location.href = '/login';
         }
       } else {
+        sessionStorage.setItem('auth_expired', '1');
         window.location.href = '/login';
       }
     }

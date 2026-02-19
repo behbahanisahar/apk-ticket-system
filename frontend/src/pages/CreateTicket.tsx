@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Select } from '../components/ui';
 import { useCreateTicket } from '../hooks/useTickets';
-import { AxiosError } from 'axios';
+import { toast } from '../lib/toast';
 
 const PRIORITIES = [
   { value: 'low', label: 'کم' },
@@ -15,19 +15,28 @@ export default function CreateTicket() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [err, setErr] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<{ title?: string; description?: string }>({});
   const navigate = useNavigate();
   const createMutation = useCreateTicket();
 
+  const validate = (): boolean => {
+    const e: { title?: string; description?: string } = {};
+    if (!title.trim()) e.title = 'عنوان الزامی است';
+    else if (title.trim().length < 3) e.title = 'عنوان حداقل ۳ کاراکتر باشد';
+    if (!description.trim()) e.description = 'توضیحات الزامی است';
+    else if (description.trim().length < 10) e.description = 'توضیحات حداقل ۱۰ کاراکتر باشد';
+    setFieldErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErr('');
+    if (!validate()) return;
     try {
       await createMutation.mutateAsync({ title, description, priority });
       navigate('/tickets');
     } catch (e) {
-      const res = e as AxiosError<{ detail?: string }>;
-      setErr(res.response?.data?.detail || 'خطا در ایجاد تیکت');
+      toast.error(e);
     }
   };
 
@@ -45,7 +54,15 @@ export default function CreateTicket() {
         <p className="mb-6 text-sm text-slate-600">درخواست خود را با جزئیات ثبت کنید</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <Input label="عنوان" value={title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} required />
+            <Input
+              label="عنوان"
+              value={title}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setTitle(e.target.value);
+                setFieldErrors((p) => ({ ...p, title: undefined }));
+              }}
+            />
+            {fieldErrors.title && <p className="mt-1 text-sm text-red-600">{fieldErrors.title}</p>}
           </div>
           <div className="mb-6">
             <Input
@@ -53,9 +70,12 @@ export default function CreateTicket() {
               multiline
               rows={4}
               value={description}
-              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDescription(e.target.value)}
-              required
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                setDescription(e.target.value);
+                setFieldErrors((p) => ({ ...p, description: undefined }));
+              }}
             />
+            {fieldErrors.description && <p className="mt-1 text-sm text-red-600">{fieldErrors.description}</p>}
           </div>
           <div className="mb-6">
             <Select
@@ -65,7 +85,6 @@ export default function CreateTicket() {
               onChange={(e: { target: { value: string } }) => setPriority(e.target.value)}
             />
           </div>
-          {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
           <Button type="submit" size="lg" disabled={createMutation.isPending}>
             {createMutation.isPending ? 'در حال ایجاد...' : 'ایجاد تیکت'}
           </Button>

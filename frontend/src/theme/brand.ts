@@ -1,7 +1,3 @@
-/**
- * APK - امن پردازان کویر (Amn Pardazan Kavir) brand
- * https://apk-group.net
- */
 export const APK_BRAND = {
   primary: '#ED1E23',
   primaryLight: '#f24a4e',

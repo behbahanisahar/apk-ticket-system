@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Card, CardContent } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { toast } from '../lib/toast';
 import { useTicket, useRespondToTicket } from '../hooks/useTickets';
 
 const statusLabel: Record<string, string> = { open: 'باز', in_progress: 'در حال بررسی', closed: 'بسته' };
@@ -18,13 +19,27 @@ export default function TicketDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [message, setMessage] = useState('');
+  const [messageError, setMessageError] = useState('');
 
-  const { data: ticket, isLoading, error } = useTicket(id);
+  const { data: ticket, isLoading, error, isError } = useTicket(id);
   const respondMutation = useRespondToTicket(id);
 
-  if (error) {
-    navigate('/tickets');
-    return null;
+  useEffect(() => {
+    if (isError && error) toast.error(error);
+  }, [isError, error]);
+
+  if (isError) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        <Link
+          to="/tickets"
+          className="mb-6 inline-flex items-center gap-1 text-slate-600 no-underline hover:text-primary"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium">بازگشت</span>
+        </Link>
+      </div>
+    );
   }
 
   if (isLoading || !ticket) return null;
@@ -33,9 +48,15 @@ export default function TicketDetail() {
 
   const onRespond = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!message.trim() || !id) return;
+    setMessageError('');
+    if (!message.trim()) {
+      setMessageError('پاسخ الزامی است');
+      return;
+    }
+    if (!id) return;
     respondMutation.mutate(message, {
       onSuccess: () => setMessage(''),
+      onError: (err) => toast.error(err),
     });
   };
 
@@ -84,9 +105,12 @@ export default function TicketDetail() {
             multiline
             rows={3}
             value={message}
-            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setMessage(e.target.value)}
-            required
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+              setMessage(e.target.value);
+              setMessageError('');
+            }}
           />
+          {messageError && <p className="mt-1 text-sm text-red-600">{messageError}</p>}
           <Button type="submit" className="mt-4" disabled={respondMutation.isPending}>
             {respondMutation.isPending ? 'در حال ارسال...' : 'ارسال پاسخ'}
           </Button>
