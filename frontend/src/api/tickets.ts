@@ -6,7 +6,7 @@ const DEFAULT_LIMIT = 20;
 export const ticketKeys = {
   all: ['tickets'] as const,
   lists: () => [...ticketKeys.all, 'list'] as const,
-  list: (params: { status?: string; priority?: string; search?: string; limit?: number; offset?: number }) =>
+  list: (params: { status?: string; priority?: string; search?: string; limit?: number; offset?: number; ordering?: string }) =>
     [...ticketKeys.lists(), params] as const,
   details: () => [...ticketKeys.all, 'detail'] as const,
   detail: (id: string) => [...ticketKeys.details(), id] as const,
@@ -25,11 +25,13 @@ export async function fetchTickets(params: {
   search?: string;
   limit?: number;
   offset?: number;
+  ordering?: string;
 }): Promise<TicketsPage> {
   const q: Record<string, string | number> = {};
   if (params.status && params.status !== 'all') q.status = params.status;
   if (params.priority && params.priority !== 'all') q.priority = params.priority;
   if (params.search) q.search = params.search;
+  if (params.ordering) q.ordering = params.ordering;
   q.limit = params.limit ?? DEFAULT_LIMIT;
   q.offset = params.offset ?? 0;
   const { data } = await api.get<PaginatedResponse<Ticket[]>>('/tickets/', { params: q });
@@ -57,6 +59,14 @@ export async function createTicket(payload: {
 
 export async function updateTicketStatus(id: number, status: string): Promise<Ticket> {
   const { data } = await api.patch<Ticket>(`/tickets/${id}/`, { status });
+  return data;
+}
+
+export async function updateTicket(
+  id: number,
+  payload: { title?: string; description?: string; priority?: string }
+): Promise<Ticket> {
+  const { data } = await api.patch<Ticket>(`/tickets/${id}/`, payload);
   return data;
 }
 

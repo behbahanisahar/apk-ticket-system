@@ -41,17 +41,20 @@ export default function CreateTicket() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 py-8">
-      <Link
-        to="/tickets"
-        className="mb-6 inline-flex items-center gap-1.5 text-slate-600 no-underline transition-colors hover:text-primary"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span className="text-sm font-medium">بازگشت</span>
-      </Link>
-      <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-soft-lg ring-1 ring-slate-200/40">
-        <h2 className="mb-2 text-xl font-bold text-slate-900">تیکت جدید</h2>
-        <p className="mb-6 text-sm text-slate-600">درخواست خود را با جزئیات ثبت کنید</p>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80">
+      <div className="mx-auto max-w-lg px-4 py-8">
+        <div className="mb-6 flex justify-end">
+          <Link
+            to="/tickets"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-4 py-2.5 text-slate-600 no-underline shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 hover:shadow"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm font-medium">بازگشت</span>
+          </Link>
+        </div>
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-8 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40">
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-slate-900">تیکت جدید</h2>
+          <p className="mb-8 text-slate-600">درخواست خود را با جزئیات ثبت کنید</p>
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <Input
@@ -89,6 +92,7 @@ export default function CreateTicket() {
             {createMutation.isPending ? 'در حال ایجاد...' : 'ایجاد تیکت'}
           </Button>
         </form>
+        </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   fetchTicket,
   createTicket,
   updateTicketStatus,
+  updateTicket,
   respondToTicket,
   deleteTicket,
 } from '../api/tickets';
@@ -16,6 +17,7 @@ export function useTickets(params: {
   search: string;
   limit?: number;
   offset?: number;
+  ordering?: string;
 }) {
   return useQuery({
     queryKey: ticketKeys.list(params),
@@ -52,6 +54,18 @@ export function useUpdateTicketStatus() {
     onSuccess: (data: Ticket) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.all });
       queryClient.invalidateQueries({ queryKey: ticketKeys.detail(String(data.id)) });
+    },
+  });
+}
+
+export function useUpdateTicket(id: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: { title?: string; description?: string; priority?: string }) =>
+      updateTicket(Number(id!), payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.all });
+      queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id!) });
     },
   });
 }

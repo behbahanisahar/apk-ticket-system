@@ -48,6 +48,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
         </SelectPrimitive.Trigger>
         <SelectPrimitive.Portal>
           <SelectPrimitive.Content
+            dir="rtl"
             className="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-soft-lg"
             position="popper"
             sideOffset={4}
@@ -57,11 +58,8 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
                 <SelectPrimitive.Item
                   key={opt.value}
                   value={opt.value}
-                  className="relative flex cursor-pointer select-none items-center rounded-md py-2 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                  className="relative flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-right text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                 >
-                  <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-                    <SelectPrimitive.ItemIndicator>●</SelectPrimitive.ItemIndicator>
-                  </span>
                   <SelectPrimitive.ItemText>{opt.label}</SelectPrimitive.ItemText>
                 </SelectPrimitive.Item>
               ))}

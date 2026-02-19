@@ -17,6 +17,11 @@
   }
 }
 
+[data-sonner-toaster] [data-sonner-toast],
+[data-sonner-toaster] [data-sonner-toast] * {
+  font-family: Vazir, Tahoma, Arial, sans-serif !important;
+}
+
 @layer utilities {
   .glass {
     @apply bg-white/80 backdrop-blur-xl border border-white/20;
