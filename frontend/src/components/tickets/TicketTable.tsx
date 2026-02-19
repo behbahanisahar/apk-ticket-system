@@ -3,14 +3,16 @@ import { ChevronLeft } from 'lucide-react';
 import { Button, Select } from '../ui';
 import { Ticket } from '../../types';
 import { getDisplayName } from '../../types';
-import { formatDateTime } from '../../lib/dateUtils';
+import { formatDateOnly, formatDateTime } from '../../lib/dateUtils';
 import {
   STATUS_OPTIONS,
   STATUS_COLOR_CLASS,
+  PRIORITY_DOT_CLASS,
   getStatusLabel,
   getPriorityLabel,
 } from '../../constants/tickets';
 import { TEXT, BORDER, BG } from '../../theme';
+import { CopyableTicketNumber } from './CopyableTicketNumber';
 
 interface TicketTableProps {
   tickets: Ticket[];
@@ -18,7 +20,6 @@ interface TicketTableProps {
   onStatusChange?: (id: number, status: string) => void;
   isLoading?: boolean;
   emptyMessage?: React.ReactNode;
-  /** Rendered when empty; overrides emptyMessage if provided */
   emptyContent?: React.ReactNode;
 }
 
@@ -29,12 +30,12 @@ function TicketTableSkeleton({ isAdmin }: { isAdmin: boolean }) {
       <table className="w-full min-w-0 md:min-w-[480px] lg:min-w-[640px]">
         <thead>
           <tr className={`border-b ${BORDER.default} ${BG.muted}`}>
-            <th className={`hidden px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} md:table-cell`}>شماره</th>
+            <th className={`hidden w-24 shrink-0 px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} md:table-cell`}>شماره</th>
             <th className={`px-4 py-3 text-right text-xs font-semibold ${TEXT.muted}`}>عنوان</th>
             {isAdmin && <th className={`hidden px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} lg:table-cell`}>کاربر</th>}
-            <th className={`px-4 py-3 text-right text-xs font-semibold ${TEXT.muted}`}>وضعیت</th>
+            <th className={`min-w-[150px] shrink-0 px-4 py-3 text-right text-xs font-semibold ${TEXT.muted}`}>وضعیت</th>
             <th className={`hidden px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} md:table-cell`}>اولویت</th>
-            <th className={`hidden px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} sm:table-cell`}>ایجاد</th>
+            <th className={`hidden w-24 shrink-0 px-4 py-3 text-right text-xs font-semibold ${TEXT.muted} sm:table-cell`}>ایجاد</th>
             <th className={`px-4 py-3 text-right text-xs font-semibold ${TEXT.muted}`}>عملیات</th>
           </tr>
         </thead>
@@ -76,10 +77,10 @@ export function TicketTable({
       <table className="w-full min-w-0 md:min-w-[480px] lg:min-w-[640px]">
         <thead>
           <tr className={`border-b ${BORDER.default} ${BG.muted}`}>
-            <th className={`hidden px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted} md:table-cell`}>
+            <th className={`hidden w-24 shrink-0 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted} md:table-cell`}>
               شماره
             </th>
-            <th className={`px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted}`}>
+            <th className={`min-w-0 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted}`}>
               عنوان
             </th>
             {isAdmin && (
@@ -87,13 +88,13 @@ export function TicketTable({
                 کاربر
               </th>
             )}
-            <th className={`px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted}`}>
+            <th className={`min-w-[150px] shrink-0 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted}`}>
               وضعیت
             </th>
             <th className={`hidden px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted} md:table-cell`}>
               اولویت
             </th>
-            <th className={`hidden px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted} sm:table-cell`}>
+            <th className={`hidden w-24 shrink-0 px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted} sm:table-cell`}>
               ایجاد
             </th>
             <th className={`px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider ${TEXT.muted}`}>
@@ -107,19 +108,23 @@ export function TicketTable({
               key={t.id}
               className={`border-b ${BORDER.divider} transition-colors last:border-0 ${BG.rowHover}`}
             >
-              <td className="hidden px-4 py-3 md:table-cell">
-                <span className={`font-mono text-sm ${TEXT.muted}`}>#{t.id}</span>
+              <td className="hidden w-24 shrink-0 px-4 py-3 md:table-cell">
+                {t.ticket_number ? (
+                  <CopyableTicketNumber ticketNumber={t.ticket_number} />
+                ) : (
+                  <span className={`text-sm tabular-nums ${TEXT.muted}`}>—</span>
+                )}
               </td>
               <td className="px-4 py-3">
                 <Link
                   to={`/ticket/${t.id}`}
-                  className={`max-w-[180px] truncate font-medium ${TEXT.heading} no-underline hover:text-primary sm:max-w-[240px] md:max-w-[280px]`}
+                  className={`max-w-[150px] truncate font-medium ${TEXT.heading} no-underline hover:text-primary sm:max-w-[200px] md:max-w-[240px]`}
                   title={t.title}
                 >
                   {t.title}
                 </Link>
                 <p
-                  className={`mt-0.5 hidden max-w-[200px] truncate text-xs ${TEXT.subtle} sm:block md:max-w-[280px]`}
+                  className={`mt-0.5 hidden max-w-[150px] truncate text-xs ${TEXT.subtle} sm:block md:max-w-[240px]`}
                   title={t.description}
                 >
                   {t.description}
@@ -130,9 +135,9 @@ export function TicketTable({
                   {getDisplayName(t.user)}
                 </td>
               )}
-              <td className="px-4 py-3">
+              <td className="min-w-[150px] shrink-0 px-4 py-3">
                 {isAdmin && onStatusChange ? (
-                  <div className="min-w-[90px] md:min-w-[100px]">
+                  <div className="min-w-[130px]">
                     <Select
                       value={t.status}
                       onChange={(e: { target: { value: string } }) => onStatusChange(t.id, e.target.value)}
@@ -149,10 +154,16 @@ export function TicketTable({
                 )}
               </td>
               <td className="hidden px-4 py-3 md:table-cell">
-                <span className={`text-sm ${TEXT.muted}`}>{getPriorityLabel(t.priority)}</span>
+                <span className={`inline-flex items-center gap-2 text-sm ${TEXT.muted}`}>
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${(PRIORITY_DOT_CLASS as Record<string, string>)[t.priority] ?? 'bg-slate-400'}`}
+                    aria-hidden
+                  />
+                  {getPriorityLabel(t.priority)}
+                </span>
               </td>
-              <td className={`hidden whitespace-nowrap px-4 py-3 text-xs ${TEXT.subtle} sm:table-cell`}>
-                {formatDateTime(t.created_at)}
+              <td className={`hidden w-24 shrink-0 whitespace-nowrap px-4 py-3 text-xs ${TEXT.subtle} sm:table-cell`}>
+                {isAdmin ? formatDateOnly(t.created_at) : formatDateTime(t.created_at)}
               </td>
               <td className="px-4 py-3">
                 <Button asChild size="sm" variant="outline">

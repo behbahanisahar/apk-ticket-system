@@ -15,13 +15,15 @@ const queryClient = new QueryClient({
     },
   },
 });
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import TicketList from './pages/TicketList';
-import TicketDetail from './pages/TicketDetail';
-import CreateTicket from './pages/CreateTicket';
-import AdminDashboard from './pages/AdminDashboard';
+import { lazy, Suspense } from 'react';
+
+const Landing = lazy(() => import('./pages/Landing'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const TicketList = lazy(() => import('./pages/TicketList'));
+const TicketDetail = lazy(() => import('./pages/TicketDetail'));
+const CreateTicket = lazy(() => import('./pages/CreateTicket'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 
 function LoadingSpinner() {
   return (
@@ -65,13 +67,13 @@ function App() {
       <AuthProvider>
         <BrowserRouter>
         <Routes>
-          <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
-          <Route path="/tickets" element={<PrivateRoute><TicketList /></PrivateRoute>} />
-          <Route path="/ticket/:id" element={<PrivateRoute><TicketDetail /></PrivateRoute>} />
-          <Route path="/new" element={<PrivateRoute><CreateTicket /></PrivateRoute>} />
-          <Route path="/admin" element={<PrivateRoute adminOnly><AdminDashboard /></PrivateRoute>} />
+          <Route path="/" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Landing /></Suspense></PublicRoute>} />
+          <Route path="/login" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Login /></Suspense></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Register /></Suspense></PublicRoute>} />
+          <Route path="/tickets" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketList /></Suspense></PrivateRoute>} />
+          <Route path="/ticket/:id" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketDetail /></Suspense></PrivateRoute>} />
+          <Route path="/new" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><CreateTicket /></Suspense></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute adminOnly><Suspense fallback={<LoadingSpinner />}><AdminDashboard /></Suspense></PrivateRoute>} />
         </Routes>
         </BrowserRouter>
       </AuthProvider>

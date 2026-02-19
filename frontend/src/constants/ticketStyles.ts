@@ -1,5 +1,11 @@
-import { TicketStatus } from './enums';
+import { TicketStatus, TicketPriority } from './enums';
 import { STATUS_COLORS } from './statusColors';
+
+export const PRIORITY_DOT_CLASS: Record<TicketPriority, string> = {
+  [TicketPriority.Low]: 'bg-emerald-500',
+  [TicketPriority.Medium]: 'bg-amber-500',
+  [TicketPriority.High]: 'bg-red-500',
+};
 
 export const STATUS_COLOR_CLASS: Record<TicketStatus, string> = {
   [TicketStatus.Open]: STATUS_COLORS[TicketStatus.Open].badge,

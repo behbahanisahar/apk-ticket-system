@@ -158,7 +158,7 @@ export default function TicketList() {
                   onStatusChange={isAdmin ? handleStatusChange : undefined}
                   isLoading={isLoading}
                 />
-                {count > limit && (
+                {count > 0 && (
                   <Pagination count={count} limit={limit} offset={offset} onPageChange={onPageChange} />
                 )}
               </>
@@ -175,7 +175,7 @@ export default function TicketList() {
                         <TicketCard key={t.id} ticket={t} />
                       ))}
                     </div>
-                    {count > limit && (
+                    {count > 0 && (
                       <Pagination count={count} limit={limit} offset={offset} onPageChange={onPageChange} />
                     )}
                   </>

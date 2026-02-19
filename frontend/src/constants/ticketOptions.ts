@@ -6,6 +6,12 @@ export const STATUS_OPTIONS = [
   { value: TicketStatus.Closed, label: 'بسته' },
 ];
 
+export const STATUS_OPTIONS_SHORT = [
+  { value: TicketStatus.Open, label: 'باز' },
+  { value: TicketStatus.InProgress, label: 'بررسی' },
+  { value: TicketStatus.Closed, label: 'بسته' },
+];
+
 export const STATUS_OPTIONS_WITH_ALL = [
   { value: 'all', label: 'همه' },
   ...STATUS_OPTIONS,

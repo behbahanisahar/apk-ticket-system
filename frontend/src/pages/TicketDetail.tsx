@@ -4,7 +4,9 @@ import { Trash2, Pencil, X, MessageCircle, Shield } from 'lucide-react';
 import { Button, Input, Select, BackLink } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
 import { getDisplayName } from '../types';
-import { formatDateTime } from '../lib/dateUtils';
+import { formatDateShort, formatDateTime } from '../lib/dateUtils';
+import { CopyableTicketNumber } from '../components/tickets/CopyableTicketNumber';
+import { toPersianDigits } from '../lib/utils';
 import { toast } from '../lib/toast';
 import { useTicket, useRespondToTicket, useDeleteTicket, useUpdateTicketStatus, useUpdateTicket } from '../hooks/useTickets';
 import { useQueryErrorToast } from '../hooks/useQueryErrorToast';
@@ -14,6 +16,7 @@ import {
   PRIORITY_OPTIONS,
   STATUS_COLOR_CLASS,
   STATUS_BORDER_CLASS,
+  PRIORITY_DOT_CLASS,
   getStatusLabel,
   getPriorityLabel,
   TicketStatus,
@@ -118,12 +121,14 @@ export default function TicketDetail() {
         <div
           className={`mb-8 rounded-2xl border ${BORDER.default} ${BG.surface} p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40 ${STATUS_BORDER_CLASS[ticket.status] ?? ''} border-s-4`}
         >
-          <div className="mb-4 flex flex-wrap items-center gap-3">
-            <span className={`rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-mono ${TEXT.muted}`}>#{ticket.id}</span>
+          <div className={`mb-5 flex flex-wrap items-center gap-2 rounded-xl ${BG.muted} px-4 py-3`}>
+            {ticket.ticket_number && (
+              <CopyableTicketNumber ticketNumber={ticket.ticket_number} size="xs" />
+            )}
             {canChangeStatus ? (
               <div className="min-w-[140px]">
                 <Select
-                  label="وضعیت"
+                  label=""
                   options={STATUS_OPTIONS}
                   value={ticket.status}
                   onChange={(e: { target: { value: string } }) =>
@@ -140,11 +145,15 @@ export default function TicketDetail() {
                 {getStatusLabel(ticket.status)}
               </span>
             )}
-            <span className={`rounded-lg border ${BORDER.default} px-2.5 py-1 text-xs font-medium ${TEXT.muted}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-lg border ${BORDER.default} bg-white/80 px-2.5 py-1 text-xs font-medium ${TEXT.muted}`}>
+              <span
+                className={`h-1.5 w-1.5 shrink-0 rounded-full ${(PRIORITY_DOT_CLASS as Record<string, string>)[ticket.priority] ?? 'bg-slate-400'}`}
+                aria-hidden
+              />
               {getPriorityLabel(ticket.priority)}
             </span>
-            <span className="text-xs text-slate-500">
-              ایجاد: {formatDateTime(ticket.created_at)}
+            <span className={`text-xs ${TEXT.subtle}`} title={formatDateTime(ticket.created_at)}>
+              ایجاد: {formatDateShort(ticket.created_at)}
             </span>
           </div>
           <div className="flex items-start justify-between gap-4">
@@ -232,7 +241,7 @@ export default function TicketDetail() {
         <div className="mb-5 flex items-center gap-2">
           <MessageCircle className={`h-5 w-5 ${TEXT.subtle}`} />
           <h2 className={`text-lg font-bold ${TEXT.heading}`}>
-            پاسخ‌ها {ticket.responses?.length ? `(${ticket.responses.length})` : ''}
+            پاسخ‌ها {ticket.responses?.length ? `(${toPersianDigits(ticket.responses.length)})` : ''}
           </h2>
         </div>
         <div className="mb-8 flex flex-col gap-5">

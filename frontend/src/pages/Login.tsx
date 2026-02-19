@@ -18,6 +18,9 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'ورود | سیستم تیکت | APK';
+  }, []);
+  useEffect(() => {
     if (sessionStorage.getItem('auth_expired')) {
       sessionStorage.removeItem('auth_expired');
       toast.error('نشست شما منقضی شده. لطفاً مجدداً وارد شوید.');
@@ -72,8 +75,8 @@ export default function Login() {
           />
           {errors.password && <p className={`mt-1 text-sm ${FEEDBACK.error}`}>{errors.password}</p>}
         </div>
-        <Button type="submit" fullWidth size="lg" disabled={loading} className="mt-2">
-          ورود
+        <Button type="submit" fullWidth size="lg" disabled={loading} aria-busy={loading} className="mt-2">
+          {loading ? 'در حال ورود...' : 'ورود'}
         </Button>
       </form>
       <p className={`mt-8 text-center text-sm ${TEXT.muted}`}>

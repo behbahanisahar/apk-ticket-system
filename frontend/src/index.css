@@ -1,3 +1,5 @@
+@import 'vazirmatn/Vazirmatn-font-face.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +10,7 @@
   }
   body {
     @apply min-h-screen bg-[#f8fafc] text-slate-900 antialiased;
-    font-family: Vazir, Tahoma, Arial, sans-serif;
+    font-family: Vazirmatn, Tahoma, Arial, sans-serif;
   }
   [dir='rtl'] select,
   [dir='rtl'] input,
@@ -19,6 +21,6 @@
 
 [data-sonner-toaster] [data-sonner-toast],
 [data-sonner-toaster] [data-sonner-toast] * {
-  font-family: Vazir, Tahoma, Arial, sans-serif !important;
+  font-family: Vazirmatn, Tahoma, Arial, sans-serif !important;
 }
 

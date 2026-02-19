@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../ui';
 import { TEXT } from '../../theme';
+import { toPersianDigits } from '../../lib/utils';
 
 interface PaginationProps {
   count: number;
@@ -17,9 +18,9 @@ export function Pagination({ count, limit, offset, onPageChange }: PaginationPro
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
-      <p className="text-sm text-slate-600">
+      <p className={`text-sm ${TEXT.muted}`}>
         {count > 0
-          ? `نمایش ${offset + 1} تا ${Math.min(offset + limit, count)} از ${count} تیکت`
+          ? `نمایش ${toPersianDigits(offset + 1)} تا ${toPersianDigits(Math.min(offset + limit, count))} از ${toPersianDigits(count)} تیکت`
           : 'تیکتی یافت نشد'}
       </p>
       <div className="flex items-center gap-2">
@@ -34,7 +35,7 @@ export function Pagination({ count, limit, offset, onPageChange }: PaginationPro
           قبلی
         </Button>
         <span className={`text-sm ${TEXT.muted}`}>
-          صفحه {currentPage} از {totalPages}
+          صفحه {toPersianDigits(currentPage)} از {toPersianDigits(totalPages)}
         </span>
         <Button
           variant="outline"

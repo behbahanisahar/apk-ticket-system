@@ -8,6 +8,7 @@ import { Ticket } from '../types';
 import { TicketTable, TicketFilters, Pagination } from '../components/tickets';
 import { toast } from '../lib/toast';
 import { TEXT, BORDER, BG } from '../theme';
+import { toPersianDigits } from '../lib/utils';
 import { SORT_OPTIONS, TicketStatus } from '../constants/tickets';
 
 export default function AdminDashboard() {
@@ -84,15 +85,15 @@ export default function AdminDashboard() {
           <div className="mb-5 flex flex-wrap gap-3">
             <div className="rounded-xl bg-emerald-50 px-4 py-2 ring-1 ring-emerald-200/60">
               <span className="text-xs font-medium text-emerald-700">باز</span>
-              <span className="ms-2 text-lg font-bold text-emerald-800">{stats.open}</span>
+              <span className="ms-2 text-lg font-bold text-emerald-800">{toPersianDigits(stats.open)}</span>
             </div>
             <div className="rounded-xl bg-amber-50 px-4 py-2 ring-1 ring-amber-200/60">
               <span className="text-xs font-medium text-amber-700">در حال بررسی</span>
-              <span className="ms-2 text-lg font-bold text-amber-800">{stats.inProgress}</span>
+              <span className="ms-2 text-lg font-bold text-amber-800">{toPersianDigits(stats.inProgress)}</span>
             </div>
             <div className="rounded-xl bg-slate-100 px-4 py-2 ring-1 ring-slate-200/60">
               <span className={`text-xs font-medium ${TEXT.muted}`}>بسته</span>
-              <span className={`ms-2 text-lg font-bold ${TEXT.label}`}>{stats.closed}</span>
+              <span className={`ms-2 text-lg font-bold ${TEXT.label}`}>{toPersianDigits(stats.closed)}</span>
             </div>
           </div>
         )}
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
           }
         />
 
-        {count > limit && (
+        {count > 0 && (
           <Pagination count={count} limit={limit} offset={offset} onPageChange={onPageChange} />
         )}
       </main>

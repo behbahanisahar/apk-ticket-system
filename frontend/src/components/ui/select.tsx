@@ -34,6 +34,7 @@ const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       <SelectPrimitive.Root value={value} onValueChange={handleChange} disabled={disabled}>
         <SelectPrimitive.Trigger
           ref={ref}
+          dir="rtl"
           className={cn(
             'flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-right transition-all duration-200',
             'placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:border-primary/30 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',

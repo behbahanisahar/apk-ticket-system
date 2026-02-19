@@ -25,6 +25,7 @@ import type { TicketStatus, TicketPriority } from '../constants/enums';
 
 export interface Ticket {
   id: number;
+  ticket_number?: string;
   title: string;
   description: string;
   priority: TicketPriority;
