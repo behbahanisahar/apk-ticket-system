@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Select, Card, CardContent, CardActions } from '../components/ui';
-import api from '../api/client';
-import { Ticket, PaginatedResponse } from '../types';
 import { APK_BRAND } from '../theme/brand';
+import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
 
 const STATUS_OPTS = [
   { value: 'open', label: 'باز' },
@@ -18,23 +16,11 @@ const statusColorClass: Record<string, string> = {
 };
 
 export default function AdminDashboard() {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: tickets = [], isLoading } = useTickets({ status: 'all', priority: 'all', search: '' });
+  const updateStatus = useUpdateTicketStatus();
 
-  useEffect(() => {
-    api.get<PaginatedResponse<Ticket[]> | Ticket[]>('/tickets/')
-      .then((r) => {
-        const data = r.data;
-        setTickets(Array.isArray(data) ? data : (data.results || []));
-      })
-      .catch(() => setTickets([]))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const updateStatus = (id: number, status: string) => {
-    api.patch(`/tickets/${id}/`, { status }).then(() => {
-      setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, status } as Ticket : t)));
-    });
+  const handleStatusChange = (id: number, status: string) => {
+    updateStatus.mutate({ id, status });
   };
 
   return (
@@ -52,7 +38,7 @@ export default function AdminDashboard() {
       </header>
       <div className="mx-auto max-w-2xl px-4 py-8">
         <h3 className="mb-4 text-lg font-semibold text-slate-900">همه تیکت‌ها</h3>
-        {loading ? (
+        {isLoading ? (
           <div className="flex flex-col gap-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-28 animate-pulse rounded-2xl bg-slate-200/60" />
@@ -76,7 +62,7 @@ export default function AdminDashboard() {
                   <div className="min-w-[140px]">
                     <Select
                       value={t.status}
-                      onChange={(e: { target: { value: string } }) => updateStatus(t.id, e.target.value)}
+                      onChange={(e: { target: { value: string } }) => handleStatusChange(t.id, e.target.value)}
                       options={STATUS_OPTS}
                       size="small"
                     />

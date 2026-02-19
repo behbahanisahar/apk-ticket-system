@@ -49,24 +49,3 @@ const Input = React.forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProp
 Input.displayName = 'Input';
 
 export { Input };
-          </label>
-        )}
-        <input
-          type={type}
-          id={inputId}
-          className={cn(
-            'flex h-10 w-full rounded-lg border border-input bg-white px-3 py-2 text-sm text-right',
-            'placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-            className
-          )}
-          ref={ref}
-          dir="rtl"
-          {...props}
-        />
-      </div>
-    );
-  }
-);
-Input.displayName = 'Input';
-
-export { Input };

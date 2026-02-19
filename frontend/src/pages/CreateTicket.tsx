@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Select } from '../components/ui';
-import api from '../api/client';
+import { useCreateTicket } from '../hooks/useTickets';
 import { AxiosError } from 'axios';
 
 const PRIORITIES = [
@@ -16,21 +16,18 @@ export default function CreateTicket() {
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
   const [err, setErr] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const createMutation = useCreateTicket();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr('');
-    setLoading(true);
     try {
-      await api.post('/tickets/', { title, description, priority });
+      await createMutation.mutateAsync({ title, description, priority });
       navigate('/tickets');
     } catch (e) {
       const res = e as AxiosError<{ detail?: string }>;
       setErr(res.response?.data?.detail || 'خطا در ایجاد تیکت');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -69,8 +66,8 @@ export default function CreateTicket() {
             />
           </div>
           {err && <p className="mb-4 text-sm text-red-600">{err}</p>}
-          <Button type="submit" size="lg" disabled={loading}>
-            ایجاد تیکت
+          <Button type="submit" size="lg" disabled={createMutation.isPending}>
+            {createMutation.isPending ? 'در حال ایجاد...' : 'ایجاد تیکت'}
           </Button>
         </form>
       </div>

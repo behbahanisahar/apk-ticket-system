@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button, Input, Card, CardContent } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/client';
-import { Ticket } from '../types';
+import { useTicket, useRespondToTicket } from '../hooks/useTickets';
 
 const statusLabel: Record<string, string> = { open: 'باز', in_progress: 'در حال بررسی', closed: 'بسته' };
 const statusColorClass: Record<string, string> = {
@@ -18,30 +17,27 @@ export default function TicketDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [ticket, setTicket] = useState<Ticket | null>(null);
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!id) return;
-    api.get<Ticket>(`/tickets/${id}/`)
-      .then((r) => setTicket(r.data))
-      .catch(() => navigate('/tickets'))
-      .finally(() => setLoading(false));
-  }, [id, navigate]);
+  const { data: ticket, isLoading, error } = useTicket(id);
+  const respondMutation = useRespondToTicket(id);
+
+  if (error) {
+    navigate('/tickets');
+    return null;
+  }
+
+  if (isLoading || !ticket) return null;
+
+  const canRespond = ticket.status !== 'closed' && (ticket.user?.id === user?.id || user?.is_staff);
 
   const onRespond = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || !id) return;
-    api.post(`/tickets/${id}/respond/`, { message }).then(() => {
-      setMessage('');
-      api.get<Ticket>(`/tickets/${id}/`).then((r) => setTicket(r.data));
+    respondMutation.mutate(message, {
+      onSuccess: () => setMessage(''),
     });
   };
-
-  if (loading || !ticket) return null;
-
-  const canRespond = ticket.status !== 'closed' && (ticket.user?.id === user?.id || user?.is_staff);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -91,7 +87,9 @@ export default function TicketDetail() {
             onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setMessage(e.target.value)}
             required
           />
-          <Button type="submit" className="mt-4">ارسال پاسخ</Button>
+          <Button type="submit" className="mt-4" disabled={respondMutation.isPending}>
+            {respondMutation.isPending ? 'در حال ارسال...' : 'ارسال پاسخ'}
+          </Button>
         </form>
       )}
     </div>

@@ -1,43 +1,28 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/client';
-import { Ticket, PaginatedResponse } from '../types';
 import { APK_BRAND } from '../theme/brand';
 import { TicketCard, TicketFilters, TicketListSkeleton } from '../components/tickets';
 import { Button } from '../components/ui';
+import { useTickets } from '../hooks/useTickets';
 
 export default function TicketList() {
   const { user, logout } = useAuth();
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('all');
   const [priority, setPriority] = useState('all');
   const [search, setSearch] = useState('');
+  const [searchSubmitted, setSearchSubmitted] = useState('');
 
-  const fetchTickets = () => {
-    const params: Record<string, string> = {};
-    if (status && status !== 'all') params.status = status;
-    if (priority && priority !== 'all') params.priority = priority;
-    if (search) params.search = search;
-    setLoading(true);
-    api.get<PaginatedResponse<Ticket[]> | Ticket[]>('/tickets/', { params })
-      .then((r) => {
-        const data = r.data;
-        setTickets(Array.isArray(data) ? data : (data.results || []));
-      })
-      .catch(() => setTickets([]))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    fetchTickets();
-  }, [status, priority]);
+  const { data: tickets = [], isLoading } = useTickets({
+    status,
+    priority,
+    search: searchSubmitted,
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchTickets();
+    setSearchSubmitted(search);
   };
 
   return (
@@ -75,7 +60,7 @@ export default function TicketList() {
           onPriorityChange={setPriority}
           onSubmit={handleSearch}
         />
-        {loading ? (
+        {isLoading ? (
           <TicketListSkeleton />
         ) : (
           <div className="flex flex-col gap-4">
