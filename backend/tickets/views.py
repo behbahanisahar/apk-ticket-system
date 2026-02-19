@@ -1,5 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User
@@ -13,7 +15,7 @@ from .serializers import (
     TicketResponseCreateSerializer,
     UserSerializer,
 )
-from .permissions import IsOwnerOrAdmin, IsOwnerOnly
+from .permissions import IsOwnerOrAdmin, IsOwnerAndOpen, IsOwnerAndOpenOrAdmin
 from .filters import TicketFilter
 
 
@@ -51,6 +53,9 @@ class RegisterViewSet(viewsets.GenericViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     filterset_class = TicketFilter
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ["created_at", "updated_at", "status"]
+    ordering = ["-created_at"]
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -70,7 +75,9 @@ class TicketViewSet(viewsets.ModelViewSet):
         if self.action in ["list", "create"]:
             return [IsAuthenticated()]
         if self.action == "destroy":
-            return [IsAuthenticated(), IsOwnerOnly()]
+            return [IsAuthenticated(), IsOwnerAndOpen()]
+        if self.action in ["update", "partial_update"]:
+            return [IsAuthenticated(), IsOwnerAndOpenOrAdmin()]
         return [IsOwnerOrAdmin()]
 
     def perform_create(self, serializer):
@@ -94,5 +101,8 @@ class TicketViewSet(viewsets.ModelViewSet):
             TicketResponse.objects.create(
                 ticket=ticket, user=request.user, message=ser.validated_data["message"]
             )
+            if request.user.is_staff and ticket.status == "open":
+                ticket.status = "in_progress"
+                ticket.save(update_fields=["status"])
             return Response({"detail": "پاسخ ثبت شد"}, status=status.HTTP_201_CREATED)
         return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
