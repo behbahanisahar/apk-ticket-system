@@ -28,9 +28,17 @@ export function getApiErrorMessage(error: unknown): string {
   if (status && STATUS_MESSAGES[status]) {
     const defaultMsg = STATUS_MESSAGES[status];
     if (data) {
-      if (typeof data.detail === 'string') return data.detail;
-      if (Array.isArray(data.non_field_errors) && data.non_field_errors.length)
-        return data.non_field_errors[0];
+      if (typeof data.detail === 'string') {
+        if (status === 401 && /credential|account|invalid|incorrect|wrong|authenticate/i.test(data.detail))
+          return 'نام کاربری یا رمز عبور اشتباه است';
+        return data.detail;
+      }
+      if (Array.isArray(data.non_field_errors) && data.non_field_errors.length) {
+        const msg = data.non_field_errors[0];
+        if (status === 401 && typeof msg === 'string' && /credential|account|invalid|incorrect|wrong|authenticate/i.test(msg))
+          return 'نام کاربری یا رمز عبور اشتباه است';
+        return msg;
+      }
       if (status === 400) {
         const fieldErrs = formatFieldErrors(data);
         if (fieldErrs.length) return fieldErrs.join(' • ');

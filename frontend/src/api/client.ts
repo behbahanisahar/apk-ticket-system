@@ -17,7 +17,8 @@ api.interceptors.response.use(
   (r) => r,
   async (err: AxiosError) => {
     const orig = err.config as typeof err.config & { _retry?: boolean };
-    if (err.response?.status === 401 && !orig._retry) {
+    const isLoginRequest = orig?.url?.includes('/auth/token/') && !orig?.url?.includes('/refresh/');
+    if (err.response?.status === 401 && !orig._retry && !isLoginRequest) {
       orig._retry = true;
       const refresh = localStorage.getItem('refresh');
       if (refresh) {

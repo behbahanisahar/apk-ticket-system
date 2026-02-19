@@ -10,7 +10,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#f8fafc] py-12">
       <Link
         to="/"
-        className="absolute top-6 right-6 text-sm text-slate-500 no-underline transition-colors hover:text-[#ED1E23]"
+        className="absolute end-6 top-6 text-sm text-slate-500 no-underline transition-colors hover:text-[#ED1E23]"
       >
         ← بازگشت به صفحه اصلی
       </Link>

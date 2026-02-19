@@ -36,7 +36,7 @@ export function TicketFilters({
   return (
     <form
       onSubmit={onSubmit}
-      className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-card ring-1 ring-slate-200/40"
+      className="mb-8 flex flex-wrap items-end gap-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-slate-200/40 ring-1 ring-slate-200/40"
     >
       <div className="min-w-0 flex-1 sm:w-48">
         <Input label="جستجو" value={search} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)} placeholder="جستجو در تیکت‌ها..." />

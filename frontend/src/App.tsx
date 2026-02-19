@@ -41,7 +41,19 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster position="top-center" dir="rtl" richColors closeButton />
+      <Toaster
+        position="top-center"
+        dir="rtl"
+        richColors
+        closeButton
+        toastOptions={{
+          classNames: {
+            toast: 'font-sans',
+            title: 'font-sans',
+            description: 'font-sans',
+          },
+        }}
+      />
       <AuthProvider>
         <BrowserRouter>
         <Routes>
