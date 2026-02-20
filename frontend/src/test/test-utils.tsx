@@ -3,6 +3,7 @@ import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '../context/AuthContext';
+import type { User } from '../types';
 
 const testQueryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,18 @@ export function renderWithProviders(
     wrapper: AllProviders,
     ...options,
   });
+}
+
+export function createMockUser(overrides: Partial<User> = {}): User {
+  return {
+    id: 1,
+    username: 'testuser',
+    email: 'test@test.com',
+    first_name: 'Test',
+    last_name: 'User',
+    is_staff: false,
+    ...overrides,
+  };
 }
 
 export * from '@testing-library/react';

@@ -10,10 +10,9 @@ vi.mock('react-router-dom', async () => {
   return { ...mod, useNavigate: () => mockNavigate };
 });
 
+const mockMutateAsync = vi.fn().mockResolvedValue({});
 vi.mock('../hooks/useTickets', () => ({
-  useCreateTicket: () => ({
-    mutateAsync: vi.fn().mockResolvedValue({}),
-  }),
+  useCreateTicket: () => ({ mutateAsync: mockMutateAsync, isPending: false }),
 }));
 
 describe('CreateTicket', () => {
@@ -47,6 +46,24 @@ describe('CreateTicket', () => {
     await user.click(screen.getByRole('button', { name: 'ایجاد تیکت' }));
     await waitFor(() => {
       expect(screen.getByText('توضیحات حداقل ۱۰ کاراکتر باشد')).toBeInTheDocument();
+    });
+  });
+
+  it('creates ticket and navigates to list on success (owner set by backend)', async () => {
+    mockMutateAsync.mockResolvedValueOnce({ id: 1, user: { id: 1 } });
+    const user = userEvent.setup();
+    render(<CreateTicket />);
+    await user.type(screen.getByLabelText(/عنوان/), 'عنوان تیکت جدید');
+    await user.type(screen.getByLabelText(/توضیحات/), 'توضیحات کافی برای تیکت');
+    await user.click(screen.getByRole('button', { name: 'ایجاد تیکت' }));
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'عنوان تیکت جدید',
+          description: 'توضیحات کافی برای تیکت',
+        })
+      );
+      expect(mockNavigate).toHaveBeenCalledWith('/tickets');
     });
   });
 });
