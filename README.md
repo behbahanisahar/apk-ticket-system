@@ -64,6 +64,7 @@
 ### React 18 به جای React 19
 
 React 19 هنوز در مرحله RC (Release Candidate) است و برای پروژه production توصیه نمی‌شود. React 18 با:
+
 - Concurrent rendering پایدار
 - Automatic batching
 - Suspense بهبودیافته
@@ -99,13 +100,26 @@ React 19 هنوز در مرحله RC (Release Candidate) است و برای پر
 ### React Testing Library به جای Enzyme
 
 Enzyme دیگر actively maintain نمی‌شود و برای React 18 پشتیبانی رسمی ندارد. React Testing Library:
+
 - فلسفه "test as user" — تست‌ها رفتار واقعی کاربر را شبیه‌سازی می‌کنند
 - توسط تیم React توصیه می‌شود
 - Integration بهتر با accessibility testing
 
+### چرا Cypress (E2E Testing) اضافه نشد؟
+
+| معیار | توضیح |
+|-------|-------|
+| **Scope پروژه** | این یک تسک ۲ روزه است. E2E testing برای پروژه‌های بزرگ‌تر با user flows پیچیده ارزشمند است |
+| **پوشش فعلی** | Vitest + RTL پوشش کافی برای unit و integration tests فراهم می‌کند |
+| **زمان Setup** | Cypress نیاز به configuration، fixtures، و نگهداری مداوم دارد |
+| **ROI** | برای این scope، زمان صرف‌شده برای E2E بهتر است صرف feature development شود |
+
+**توصیه برای آینده:** اگر پروژه رشد کند و user flows پیچیده‌تر شوند (مثلاً payment، multi-step wizards)، اضافه کردن Cypress یا Playwright منطقی است.
+
 ### TanStack Query به جای Redux/Context برای Data Fetching
 
 در این پروژه، اکثر state از سرور می‌آید (تیکت‌ها، پاسخ‌ها، اطلاعات کاربر). TanStack Query:
+
 - Caching خودکار با invalidation هوشمند
 - Loading/Error states بدون boilerplate
 - Background refetching
@@ -117,6 +131,7 @@ Redux برای client-state پیچیده مناسب است، نه server-state. 
 ### Custom Hooks به جای Formik/React Hook Form
 
 فرم‌های این پروژه ساده هستند (Login, Register, CreateTicket). یک `useFormValidation` hook سفارشی:
+
 - سبک‌تر (صفر dependency)
 - قابل فهم‌تر
 - قابل گسترش برای نیازهای خاص
@@ -230,6 +245,7 @@ ticket-system/
 | **hooks/** | Flat | مشابه lib، hooks ساده و مستقل هستند |
 
 **چرا Co-located برای components؟**
+
 - تست کنار کامپوننت: آسان‌تر برای نگهداری و refactoring
 - Barrel exports با `index.ts`: import paths تمیز و ساده
 - Scalability: اضافه کردن styles، types، یا sub-components در آینده آسان‌تر است
@@ -618,6 +634,7 @@ pytest -v
 </div>
 
 **تست‌های موجود:**
+
 - ایجاد تیکت و بررسی مالکیت
 - پاسخ به تیکت (User/Admin/Other)
 - تغییر وضعیت توسط User (باید رد شود) و Admin (باید موفق شود)
@@ -642,6 +659,7 @@ npm run test:watch
 </div>
 
 **تست‌های موجود:**
+
 - کامپوننت‌های UI (Button, Input)
 - کامپوننت‌های تیکت (TicketCard, TicketTable, Filters)
 - صفحات (Login, Register, CreateTicket, TicketDetail)
@@ -671,6 +689,7 @@ npm run test:watch
 ### بروزرسانی خودکار (Auto-refresh)
 
 لیست تیکت‌ها هر **5 ثانیه** بروزرسانی می‌شود (بدون نیاز به refresh صفحه):
+
 - تیکت جدید اضافه شود → نمایش داده می‌شود
 - وضعیت تیکت تغییر کند → بروز می‌شود
 - تیکت حذف شود → از لیست حذف می‌شود
