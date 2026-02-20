@@ -28,6 +28,8 @@ services:
       CORS_ORIGINS: http://localhost,http://127.0.0.1,http://localhost:80
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-secret-change-in-prod}
       DJANGO_LANGUAGE_CODE: "en-us"
+    volumes:
+      - media_data:/app/media
     depends_on:
       postgres:
         condition: service_healthy
@@ -51,3 +53,4 @@ services:
 
 volumes:
   postgres_data:
+  media_data:
