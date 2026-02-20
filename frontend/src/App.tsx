@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { isRetryableError } from './lib/apiError';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +25,7 @@ const TicketList = lazy(() => import('./pages/TicketList'));
 const TicketDetail = lazy(() => import('./pages/TicketDetail'));
 const CreateTicket = lazy(() => import('./pages/CreateTicket'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function LoadingSpinner() {
   return (
@@ -50,34 +52,37 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Toaster
-        position="top-center"
-        dir="rtl"
-        richColors
-        closeButton
-        toastOptions={{
-          classNames: {
-            toast: 'font-sans',
-            title: 'font-sans',
-            description: 'font-sans',
-          },
-        }}
-      />
-      <AuthProvider>
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Landing /></Suspense></PublicRoute>} />
-          <Route path="/login" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Login /></Suspense></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Register /></Suspense></PublicRoute>} />
-          <Route path="/tickets" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketList /></Suspense></PrivateRoute>} />
-          <Route path="/ticket/:id" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketDetail /></Suspense></PrivateRoute>} />
-          <Route path="/new" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><CreateTicket /></Suspense></PrivateRoute>} />
-          <Route path="/admin" element={<PrivateRoute adminOnly><Suspense fallback={<LoadingSpinner />}><AdminDashboard /></Suspense></PrivateRoute>} />
-        </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Toaster
+          position="top-center"
+          dir="rtl"
+          richColors
+          closeButton
+          toastOptions={{
+            classNames: {
+              toast: 'font-sans',
+              title: 'font-sans',
+              description: 'font-sans',
+            },
+          }}
+        />
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Landing /></Suspense></PublicRoute>} />
+              <Route path="/login" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Login /></Suspense></PublicRoute>} />
+              <Route path="/register" element={<PublicRoute><Suspense fallback={<LoadingSpinner />}><Register /></Suspense></PublicRoute>} />
+              <Route path="/tickets" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketList /></Suspense></PrivateRoute>} />
+              <Route path="/ticket/:id" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><TicketDetail /></Suspense></PrivateRoute>} />
+              <Route path="/new" element={<PrivateRoute><Suspense fallback={<LoadingSpinner />}><CreateTicket /></Suspense></PrivateRoute>} />
+              <Route path="/admin" element={<PrivateRoute adminOnly><Suspense fallback={<LoadingSpinner />}><AdminDashboard /></Suspense></PrivateRoute>} />
+              <Route path="*" element={<Suspense fallback={<LoadingSpinner />}><NotFound /></Suspense>} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 
