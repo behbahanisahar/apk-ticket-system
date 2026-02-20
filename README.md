@@ -717,11 +717,12 @@ npm run test:watch
 
 ---
 
-<h2 dir="rtl">یادداشت پایانی</h2>
+## یادداشت پایانی
 
 تخصص اصلی من **Frontend Development** است. این تسک فرصتی بود برای یادگیری عمیق‌تر Django و DRF.
 
 در طول انجام این پروژه:
+
 - مستندات رسمی Django و DRF را مطالعه کردم
 - از best practices موجود در GitHub و Stack Overflow استفاده کردم ( با توجه به زمان)
 - از ابزارهای AI برای درک بهتر مفاهیم و debugging کمک گرفتم
