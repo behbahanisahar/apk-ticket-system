@@ -286,6 +286,15 @@ docker compose up -d --build
 | Swagger UI | http://localhost/api/docs/ |
 | ReDoc | http://localhost/api/redoc/ |
 | Django Admin | http://localhost/api/admin/ |
+| Media Files | http://localhost/media/ |
+
+### مدیریت فایل‌های آپلود شده
+
+در Docker، فایل‌های آپلود شده (تصاویر تیکت) به صورت زیر مدیریت می‌شوند:
+
+- **Volume:** `media_data` برای persist کردن فایل‌ها بین container restarts
+- **Nginx:** فایل‌های `/media/` مستقیماً توسط nginx serve می‌شوند (نه Django)
+- **Path:** تصاویر در `/app/media/tickets/YYYY/MM/` ذخیره می‌شوند
 
 ### ایجاد کاربر ادمین
 
