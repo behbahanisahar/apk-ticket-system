@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Ticket, TicketResponse
+from .models import Ticket, TicketResponse, TicketImage
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,9 +18,16 @@ class TicketResponseSerializer(serializers.ModelSerializer):
         read_only_fields = ["user"]
 
 
+class TicketImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketImage
+        fields = ["id", "image"]
+
+
 class TicketSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     responses = TicketResponseSerializer(many=True, read_only=True)
+    images = TicketImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Ticket
@@ -29,6 +36,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "ticket_number",
             "title",
             "description",
+            "images",
             "priority",
             "status",
             "user",

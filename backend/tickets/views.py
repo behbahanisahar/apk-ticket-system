@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.models import User
 
-from .models import Ticket, TicketResponse
+from .models import Ticket, TicketResponse, TicketImage
 from .serializers import (
     TicketSerializer,
     TicketCreateSerializer,
@@ -59,7 +59,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        qs = Ticket.objects.select_related("user").prefetch_related("responses__user")
+        qs = Ticket.objects.select_related("user").prefetch_related("responses__user", "images")
         if self.request.user.is_staff:
             return qs
         return qs.filter(user=self.request.user)
@@ -79,6 +79,37 @@ class TicketViewSet(viewsets.ModelViewSet):
         if self.action in ["update", "partial_update"]:
             return [IsAuthenticated(), IsOwnerAndOpenOrAdmin()]
         return [IsOwnerOrAdmin()]
+
+    def create(self, request, *args, **kwargs):
+        images = request.FILES.getlist("images") or []
+        max_per_image = 2 * 1024 * 1024  # 2MB per image
+        max_total = 8 * 1024 * 1024  # 8MB total
+        max_count = 5
+        if len(images) > max_count:
+            return Response(
+                {"detail": f"حداکثر {max_count} تصویر قابل آپلود است"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        total_size = 0
+        for img in images:
+            if img.size > max_per_image:
+                return Response(
+                    {"detail": "حداکثر حجم هر تصویر ۲ مگابایت است"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            total_size += img.size
+        if total_size > max_total:
+            return Response(
+                {"detail": "مجموع حجم تصاویر نباید از ۸ مگابایت بیشتر باشد"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        ticket = serializer.save(user=request.user)
+        for img in images:
+            TicketImage.objects.create(ticket=ticket, image=img)
+        ticket.refresh_from_db()
+        return Response(TicketSerializer(ticket).data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

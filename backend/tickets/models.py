@@ -42,6 +42,14 @@ class Ticket(models.Model):
         return self.title
 
 
+class TicketImage(models.Model):
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="tickets/%Y/%m/")
+
+    def __str__(self):
+        return f"{self.ticket.title} - image"
+
+
 class TicketResponse(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="responses")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="ticket_responses")
