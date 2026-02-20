@@ -32,7 +32,7 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Lint
-        run: npx eslint src --ext .ts,.tsx
+        run: npm run lint
 
       - name: Run tests
         run: npm test -- --run --coverage
@@ -63,8 +63,12 @@ jobs:
           --health-retries 5
 
     env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
-      SECRET_KEY: test-secret-key-for-ci
+      POSTGRES_DB: test_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: '5432'
+      DJANGO_SECRET_KEY: test-secret-key-for-ci
       DEBUG: 'False'
       ALLOWED_HOSTS: localhost,127.0.0.1
 
