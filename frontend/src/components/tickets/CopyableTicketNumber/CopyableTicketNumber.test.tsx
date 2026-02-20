@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, fireEvent } from '@testing-library/react';
-import { render } from '../../test/test-utils';
+import { render } from '../../../test/test-utils';
 import { CopyableTicketNumber } from './CopyableTicketNumber';
-import { toast } from '../../lib/toast';
+import { toast } from '../../../lib/toast';
 
 describe('CopyableTicketNumber', () => {
   let writeText: ReturnType<typeof vi.fn>;

@@ -1,18 +1,18 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { Button, Select } from '../ui';
-import { Ticket } from '../../types';
-import { getDisplayName } from '../../types';
-import { formatDateOnly, formatDateTime } from '../../lib/dateUtils';
+import { Button, Select } from '../../ui';
+import { Ticket } from '../../../types';
+import { getDisplayName } from '../../../types';
+import { formatDateOnly, formatDateTime } from '../../../lib/dateUtils';
 import {
   STATUS_OPTIONS,
   STATUS_COLOR_CLASS,
   PRIORITY_DOT_CLASS,
   getStatusLabel,
   getPriorityLabel,
-} from '../../constants/tickets';
-import { TEXT, BORDER, BG } from '../../theme';
-import { CopyableTicketNumber } from './CopyableTicketNumber';
+} from '../../../constants/tickets';
+import { TEXT, BORDER, BG } from '../../../theme';
+import { CopyableTicketNumber } from '../CopyableTicketNumber';
 
 interface TicketTableProps {
   tickets: Ticket[];

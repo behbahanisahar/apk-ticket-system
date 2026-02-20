@@ -67,7 +67,6 @@ export default function TicketDetail() {
 
   const canRespond = ticket.status !== TicketStatus.Closed && (ticket.user?.id === user?.id || user?.is_staff);
   const canEdit = ticket.user?.id === user?.id && ticket.status === TicketStatus.Open;
-  const canDelete = canEdit;
   const canChangeStatus = user?.is_staff ?? false;
 
   const startEdit = () => {

@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/react';
-import { render } from '../../test/test-utils';
+import { render } from '../../../test/test-utils';
 import { TicketCard } from './TicketCard';
-import type { Ticket } from '../../types';
-import { TicketStatus, TicketPriority } from '../../constants/tickets';
+import type { Ticket } from '../../../types';
+import { TicketStatus, TicketPriority } from '../../../constants/tickets';
 
 const mockTicket: Ticket = {
   id: 1,

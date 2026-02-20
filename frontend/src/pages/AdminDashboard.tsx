@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState('');
   const [searchSubmitted, setSearchSubmitted] = useState('');
   const limit = 15;
-  const { offset, setOffset, onPageChange, resetOffset } = usePagination();
+  const { offset, onPageChange, resetOffset } = usePagination();
 
   const { data, isLoading } = useTickets({
     status,

@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui';
-import { TEXT } from '../../theme';
-import { toPersianDigits } from '../../lib/utils';
+import { Button } from '../../ui';
+import { TEXT } from '../../../theme';
+import { toPersianDigits } from '../../../lib/utils';
 
 interface PaginationProps {
   count: number;

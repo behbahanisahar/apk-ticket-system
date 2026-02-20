@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardActions } from '../ui';
-import { Ticket } from '../../types';
-import { formatDateShort } from '../../lib/dateUtils';
+import { Card, CardContent, CardActions } from '../../ui';
+import { Ticket } from '../../../types';
+import { formatDateShort } from '../../../lib/dateUtils';
 import { Calendar } from 'lucide-react';
-import { STATUS_BORDER_CLASS, STATUS_COLOR_CLASS, getStatusLabel, getPriorityLabel } from '../../constants/tickets';
-import { TEXT, BORDER, BG } from '../../theme';
+import { STATUS_BORDER_CLASS, STATUS_COLOR_CLASS, getStatusLabel, getPriorityLabel } from '../../../constants/tickets';
+import { TEXT, BORDER, BG } from '../../../theme';
 
 interface TicketCardProps {
   ticket: Ticket;

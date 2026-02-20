@@ -1,7 +1,7 @@
 import { Copy } from 'lucide-react';
-import { toPersianDigits } from '../../lib/utils';
-import { toast } from '../../lib/toast';
-import { TEXT } from '../../theme';
+import { toPersianDigits } from '../../../lib/utils';
+import { toast } from '../../../lib/toast';
+import { TEXT } from '../../../theme';
 
 interface CopyableTicketNumberProps {
   ticketNumber: string;

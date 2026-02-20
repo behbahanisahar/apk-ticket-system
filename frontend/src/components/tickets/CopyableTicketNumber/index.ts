@@ -1,0 +1,1 @@
+export { CopyableTicketNumber } from './CopyableTicketNumber';

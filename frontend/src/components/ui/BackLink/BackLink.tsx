@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { TEXT, BORDER, BG } from '../../theme';
+import { TEXT, BORDER, BG } from '../../../theme';
 
 interface BackLinkProps {
   to: string;
