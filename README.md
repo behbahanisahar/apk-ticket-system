@@ -166,9 +166,21 @@ ticket-system/
 │   │   ├── api/                # API client و توابع fetch
 │   │   │   ├── client.ts       # Axios instance با interceptors
 │   │   │   └── tickets.ts      # Ticket API functions
-│   │   ├── components/         # کامپوننت‌های قابل استفاده مجدد
-│   │   │   ├── ui/             # Button, Input, Select, Card
-│   │   │   ├── tickets/        # TicketCard, TicketTable, Filters
+│   │   ├── components/         # کامپوننت‌های قابل استفاده مجدد (Co-located)
+│   │   │   ├── ui/             # کامپوننت‌های پایه
+│   │   │   │   ├── Button/
+│   │   │   │   │   ├── button.tsx
+│   │   │   │   │   ├── Button.test.tsx
+│   │   │   │   │   └── index.ts
+│   │   │   │   ├── Input/
+│   │   │   │   ├── Select/
+│   │   │   │   └── Card/
+│   │   │   ├── tickets/        # کامپوننت‌های تیکت
+│   │   │   │   ├── TicketCard/
+│   │   │   │   ├── TicketTable/
+│   │   │   │   ├── TicketFilters/
+│   │   │   │   └── Pagination/
+│   │   │   ├── ErrorBoundary/  # مدیریت خطا
 │   │   │   ├── layout/         # AuthLayout
 │   │   │   └── landing/        # Landing page components
 │   │   ├── constants/          # Enums و options
@@ -178,11 +190,11 @@ ticket-system/
 │   │   │   ├── useFormValidation.ts
 │   │   │   ├── useDebounce.ts
 │   │   │   └── usePagination.ts
-│   │   ├── lib/                # Utilities
+│   │   ├── lib/                # Utilities (flat structure)
 │   │   │   ├── apiError.ts     # Error handling
 │   │   │   ├── dateUtils.ts    # Persian date formatting
 │   │   │   └── toast.ts        # Toast wrapper
-│   │   ├── pages/              # Route components
+│   │   ├── pages/              # Route components (flat structure)
 │   │   │   ├── Login.tsx
 │   │   │   ├── Register.tsx
 │   │   │   ├── TicketList.tsx
@@ -207,6 +219,20 @@ ticket-system/
 ```
 
 </div>
+
+### تصمیمات ساختار پوشه‌ها
+
+| پوشه | ساختار | دلیل |
+|------|--------|------|
+| **components/** | Co-located folders | هر کامپوننت در پوشه جداگانه با تست و index.ts. مزایا: encapsulation بهتر، import ساده‌تر، مقیاس‌پذیری |
+| **pages/** | Flat (فایل‌های مستقل) | صفحات standalone هستند و معمولاً sub-component ندارند. استاندارد صنعت برای route components |
+| **lib/** | Flat (فایل‌های مستقل) | utility functions ساده که نیاز به پوشه جداگانه ندارند. استاندارد صنعت برای helper modules |
+| **hooks/** | Flat | مشابه lib، hooks ساده و مستقل هستند |
+
+**چرا Co-located برای components؟**
+- تست کنار کامپوننت: آسان‌تر برای نگهداری و refactoring
+- Barrel exports با `index.ts`: import paths تمیز و ساده
+- Scalability: اضافه کردن styles، types، یا sub-components در آینده آسان‌تر است
 
 ---
 
