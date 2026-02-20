@@ -630,6 +630,10 @@ Content-Type: application/json
 ```bash
 cd backend
 
+# Activate virtual environment first
+source .venv/bin/activate  # macOS/Linux
+# or: .venv\Scripts\activate  # Windows
+
 # Run all tests
 pytest
 
