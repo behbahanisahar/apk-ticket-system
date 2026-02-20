@@ -27,7 +27,7 @@ export default function TicketList() {
   const [searchSubmitted, setSearchSubmitted] = useState('');
   const [ordering, setOrdering] = useState('-created_at');
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>('ticketListView', 'table', parseViewMode);
-  const { offset, setOffset, onPageChange, resetOffset } = usePagination();
+  const { offset, onPageChange, resetOffset } = usePagination();
 
   const isAdmin = user?.is_staff ?? false;
   const showTableView = isAdmin || viewMode === 'table';
@@ -73,9 +73,10 @@ export default function TicketList() {
             <img src={APK_BRAND.logoUrl} alt="APK" className="h-9" />
             <span className={`text-lg font-bold ${TEXT.heading}`}>تیکت‌ها</span>
           </Link>
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/new" className="rounded-xl text-primary transition-colors hover:bg-primary/10">
-              <Plus className="h-5 w-5" />
+          <Button variant="default" size="sm" asChild>
+            <Link to="/new" className="gap-1.5">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">تیکت جدید</span>
             </Link>
           </Button>
           <div className="flex items-center gap-2">
