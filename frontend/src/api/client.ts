@@ -2,6 +2,11 @@ import axios, { AxiosError } from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
+function getRefreshUrl(): string {
+  const base = baseURL.endsWith('/') ? baseURL.slice(0, -1) : baseURL;
+  return `${base}/auth/token/refresh/`;
+}
+
 const api = axios.create({
   baseURL,
   headers: { 'Content-Type': 'application/json' },
@@ -24,10 +29,7 @@ api.interceptors.response.use(
       const refresh = localStorage.getItem('refresh');
       if (refresh) {
         try {
-          const { data } = await axios.post<{ access: string }>(
-            `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/token/refresh/`,
-            { refresh }
-          );
+          const { data } = await axios.post<{ access: string }>(getRefreshUrl(), { refresh });
           localStorage.setItem('access', data.access);
           if (orig.headers) orig.headers.Authorization = `Bearer ${data.access}`;
           return api(orig);
