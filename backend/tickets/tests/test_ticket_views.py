@@ -1,10 +1,22 @@
 import pytest
+import io
+from PIL import Image
 from django.urls import reverse
+from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIClient
 from rest_framework import status
 from django.contrib.auth.models import User
 
-from tickets.models import Ticket, TicketResponse
+from tickets.models import Ticket, TicketResponse, TicketImage
+
+
+def create_test_image(name="test.jpg", size=(100, 100), format="JPEG"):
+    """Create a test image file."""
+    file = io.BytesIO()
+    image = Image.new("RGB", size, color="red")
+    image.save(file, format)
+    file.seek(0)
+    return SimpleUploadedFile(name, file.read(), content_type=f"image/{format.lower()}")
 
 
 @pytest.mark.django_db
@@ -192,3 +204,83 @@ class TestTicketResponseValidation:
         assert resp.status_code == status.HTTP_201_CREATED
         ticket.refresh_from_db()
         assert ticket.status == "in_progress"
+
+
+@pytest.mark.django_db
+class TestTicketImageUpload:
+    def test_create_ticket_with_single_image(self, user):
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("ticket-list")
+        image = create_test_image()
+        data = {
+            "title": "تست تصویر",
+            "description": "تست آپلود تصویر",
+            "priority": "medium",
+            "images": [image],
+        }
+        resp = client.post(url, data, format="multipart")
+        assert resp.status_code == status.HTTP_201_CREATED
+        ticket = Ticket.objects.get(pk=resp.data["id"])
+        assert ticket.images.count() == 1
+
+    def test_create_ticket_with_multiple_images(self, user):
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("ticket-list")
+        images = [create_test_image(f"test{i}.jpg") for i in range(3)]
+        data = {
+            "title": "تست چند تصویر",
+            "description": "تست آپلود چند تصویر",
+            "priority": "high",
+            "images": images,
+        }
+        resp = client.post(url, data, format="multipart")
+        assert resp.status_code == status.HTTP_201_CREATED
+        ticket = Ticket.objects.get(pk=resp.data["id"])
+        assert ticket.images.count() == 3
+
+    def test_create_ticket_exceeds_max_image_count(self, user):
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("ticket-list")
+        images = [create_test_image(f"test{i}.jpg") for i in range(6)]
+        data = {
+            "title": "تست تعداد زیاد",
+            "description": "تست بیش از ۵ تصویر",
+            "priority": "low",
+            "images": images,
+        }
+        resp = client.post(url, data, format="multipart")
+        assert resp.status_code == status.HTTP_400_BAD_REQUEST
+        assert "حداکثر" in resp.data.get("detail", "")
+
+    def test_ticket_response_includes_images(self, user):
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("ticket-list")
+        image = create_test_image()
+        data = {
+            "title": "تست پاسخ",
+            "description": "تست تصویر در پاسخ",
+            "priority": "medium",
+            "images": [image],
+        }
+        resp = client.post(url, data, format="multipart")
+        assert resp.status_code == status.HTTP_201_CREATED
+        assert "images" in resp.data
+        assert len(resp.data["images"]) == 1
+
+    def test_create_ticket_without_images(self, user):
+        client = APIClient()
+        client.force_authenticate(user=user)
+        url = reverse("ticket-list")
+        data = {
+            "title": "تست بدون تصویر",
+            "description": "تیکت بدون تصویر",
+            "priority": "medium",
+        }
+        resp = client.post(url, data, format="multipart")
+        assert resp.status_code == status.HTTP_201_CREATED
+        ticket = Ticket.objects.get(pk=resp.data["id"])
+        assert ticket.images.count() == 0

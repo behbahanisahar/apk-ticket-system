@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter
@@ -17,6 +19,8 @@ from .serializers import (
 )
 from .permissions import IsOwnerOrAdmin, IsOwnerAndOpen, IsOwnerAndOpenOrAdmin
 from .filters import TicketFilter
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterViewSet(viewsets.GenericViewSet):
@@ -46,6 +50,7 @@ class RegisterViewSet(viewsets.GenericViewSet):
             first_name=first_name,
             last_name=last_name,
         )
+        logger.info(f"New user registered: {username} (id={user.id})")
         serializer = self.get_serializer(user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -109,15 +114,34 @@ class TicketViewSet(viewsets.ModelViewSet):
         for img in images:
             TicketImage.objects.create(ticket=ticket, image=img)
         ticket.refresh_from_db()
+        logger.info(
+            f"Ticket created: {ticket.ticket_number} by user {request.user.username} "
+            f"(priority={ticket.priority}, images={len(images)})"
+        )
         return Response(TicketSerializer(ticket).data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
     def perform_update(self, serializer):
+        old_status = serializer.instance.status
         if not self.request.user.is_staff:
             serializer.validated_data.pop("status", None)
-        serializer.save()
+        instance = serializer.save()
+        new_status = instance.status
+        if old_status != new_status:
+            logger.info(
+                f"Ticket {instance.ticket_number} status changed: {old_status} -> {new_status} "
+                f"by {self.request.user.username}"
+            )
+        else:
+            logger.info(f"Ticket {instance.ticket_number} updated by {self.request.user.username}")
+
+    def perform_destroy(self, instance):
+        ticket_number = instance.ticket_number
+        username = self.request.user.username
+        instance.delete()
+        logger.info(f"Ticket {ticket_number} deleted by owner {username}")
 
     @action(detail=True, methods=["post"])
     def respond(self, request, pk=None):
@@ -132,8 +156,15 @@ class TicketViewSet(viewsets.ModelViewSet):
             TicketResponse.objects.create(
                 ticket=ticket, user=request.user, message=ser.validated_data["message"]
             )
+            role = "admin" if request.user.is_staff else "user"
+            logger.info(
+                f"Response added to ticket {ticket.ticket_number} by {role} {request.user.username}"
+            )
             if request.user.is_staff and ticket.status == "open":
                 ticket.status = "in_progress"
                 ticket.save(update_fields=["status"])
+                logger.info(
+                    f"Ticket {ticket.ticket_number} auto-changed to in_progress after admin response"
+                )
             return Response({"detail": "پاسخ ثبت شد"}, status=status.HTTP_201_CREATED)
         return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
