@@ -66,4 +66,58 @@ describe('CreateTicket', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/tickets');
     });
   });
+
+  it('renders image upload button', () => {
+    render(<CreateTicket />);
+    expect(screen.getByRole('button', { name: /انتخاب تصاویر/ })).toBeInTheDocument();
+    expect(screen.getByText(/آپلود تصاویر/)).toBeInTheDocument();
+  });
+
+  it('shows image preview after selecting a file', async () => {
+    const user = userEvent.setup();
+    render(<CreateTicket />);
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(input, file);
+    await waitFor(() => {
+      const previews = screen.getAllByAltText(/پیش‌نمایش/);
+      expect(previews.length).toBeGreaterThan(0);
+    });
+  });
+
+  it('removes image when delete button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<CreateTicket />);
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(input, file);
+    await waitFor(() => {
+      expect(screen.getByAltText(/پیش‌نمایش/)).toBeInTheDocument();
+    });
+    const deleteButton = screen.getByLabelText('حذف تصویر');
+    await user.click(deleteButton);
+    await waitFor(() => {
+      expect(screen.queryByAltText(/پیش‌نمایش/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('sends images with ticket creation', async () => {
+    mockMutateAsync.mockResolvedValueOnce({ id: 1, user: { id: 1 }, images: [] });
+    const user = userEvent.setup();
+    render(<CreateTicket />);
+    await user.type(screen.getByLabelText(/عنوان/), 'تیکت با تصویر');
+    await user.type(screen.getByLabelText(/توضیحات/), 'توضیحات کافی برای تیکت');
+    const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(input, file);
+    await user.click(screen.getByRole('button', { name: 'ایجاد تیکت' }));
+    await waitFor(() => {
+      expect(mockMutateAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'تیکت با تصویر',
+          images: expect.arrayContaining([expect.any(File)]),
+        })
+      );
+    });
+  });
 });

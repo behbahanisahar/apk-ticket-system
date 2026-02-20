@@ -26,6 +26,10 @@ const mockTicket = {
   status: TicketStatus.Open,
   user: { id: 1, username: 'owner', first_name: 'مالک', last_name: 'تیکت', is_staff: false },
   responses: [] as never[],
+  images: [
+    { id: 1, image: '/media/tickets/2024/01/test1.jpg' },
+    { id: 2, image: '/media/tickets/2024/01/test2.jpg' },
+  ],
   created_at: '2024-01-01T10:00:00Z',
   updated_at: '2024-01-01T10:00:00Z',
 };
@@ -92,6 +96,24 @@ describe('TicketDetail - 3.4 minimum tests', () => {
     await user.click(screen.getByRole('button', { name: /ارسال پاسخ/ }));
     await waitFor(() => {
       expect(screen.getByText('پاسخ الزامی است')).toBeInTheDocument();
+    });
+  });
+
+  it('displays ticket images when present', async () => {
+    mockAuthUser = createMockUser({ id: 1, is_staff: false });
+    const { default: TicketDetail } = await import('./TicketDetail');
+    render(<TicketDetail />);
+    const images = screen.getAllByAltText('تصویر ضمیمه');
+    expect(images.length).toBe(2);
+  });
+
+  it('images have lazy loading attribute', async () => {
+    mockAuthUser = createMockUser({ id: 1, is_staff: false });
+    const { default: TicketDetail } = await import('./TicketDetail');
+    render(<TicketDetail />);
+    const images = screen.getAllByAltText('تصویر ضمیمه');
+    images.forEach((img) => {
+      expect(img).toHaveAttribute('loading', 'lazy');
     });
   });
 });

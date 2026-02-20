@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { toPersianDigits } from './utils';
+import { toPersianDigits, getImageUrl } from './utils';
 
 describe('toPersianDigits', () => {
   it('converts Arabic numerals to Persian', () => {
@@ -14,5 +14,32 @@ describe('toPersianDigits', () => {
 
   it('preserves non-digit characters', () => {
     expect(toPersianDigits('TKT-000001')).toBe('TKT-۰۰۰۰۰۱');
+  });
+});
+
+describe('getImageUrl', () => {
+  it('returns null for null or undefined input', () => {
+    expect(getImageUrl(null)).toBeNull();
+    expect(getImageUrl(undefined)).toBeNull();
+  });
+
+  it('returns null for empty string', () => {
+    expect(getImageUrl('')).toBeNull();
+  });
+
+  it('returns URL as-is if it starts with http', () => {
+    const url = 'https://example.com/image.jpg';
+    expect(getImageUrl(url)).toBe(url);
+  });
+
+  it('prepends base URL for relative paths', () => {
+    const result = getImageUrl('/media/tickets/2024/01/test.jpg');
+    expect(result).toContain('/media/tickets/2024/01/test.jpg');
+    expect(result).toMatch(/^http/);
+  });
+
+  it('handles paths without leading slash', () => {
+    const result = getImageUrl('media/tickets/test.jpg');
+    expect(result).toContain('media/tickets/test.jpg');
   });
 });
