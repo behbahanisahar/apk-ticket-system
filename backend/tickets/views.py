@@ -118,7 +118,10 @@ class TicketViewSet(viewsets.ModelViewSet):
             f"Ticket created: {ticket.ticket_number} by user {request.user.username} "
             f"(priority={ticket.priority}, images={len(images)})"
         )
-        return Response(TicketSerializer(ticket).data, status=status.HTTP_201_CREATED)
+        return Response(
+            TicketSerializer(ticket, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

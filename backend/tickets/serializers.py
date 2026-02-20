@@ -19,9 +19,16 @@ class TicketResponseSerializer(serializers.ModelSerializer):
 
 
 class TicketImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = TicketImage
         fields = ["id", "image"]
+
+    def get_image(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
 
 
 class TicketSerializer(serializers.ModelSerializer):
