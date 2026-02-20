@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import { getApiErrorMessage, isRetryableError } from './apiError';
-import { AxiosError } from 'axios';
+import { AxiosError, AxiosHeaders } from 'axios';
 
 function makeError(status?: number, data?: unknown): AxiosError {
   const err = new Error() as AxiosError;
-  err.response = status ? { status, data } : undefined;
+  err.response = status
+    ? {
+        status,
+        data,
+        statusText: '',
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+      }
+    : undefined;
   err.code = undefined;
   return err;
 }
