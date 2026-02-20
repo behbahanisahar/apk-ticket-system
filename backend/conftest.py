@@ -1,8 +1,4 @@
-import os
 import pytest
-
-os.environ.setdefault("USE_SQLITE", "1")
-
 from django.contrib.auth.models import User
 
 

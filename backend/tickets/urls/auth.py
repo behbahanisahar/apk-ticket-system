@@ -18,6 +18,6 @@ class CurrentUserView(APIView):
 urlpatterns = [
     path("token/", TokenObtainPairView.as_view(permission_classes=[AllowAny])),
     path("token/refresh/", TokenRefreshView.as_view(permission_classes=[AllowAny])),
-    path("register/", RegisterViewSet.as_view({"post": "create"})),
+    path("register/", RegisterViewSet.as_view({"post": "create"}), name="auth-register"),
     path("me/", CurrentUserView.as_view()),
 ]
