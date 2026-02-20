@@ -57,7 +57,7 @@ export default function Register() {
     <AuthLayout>
       <h2 className={`mb-2 text-center text-2xl font-bold ${TEXT.heading}`}>ثبت‌نام در سیستم تیکت</h2>
       <p className={`mb-8 text-center text-sm ${TEXT.muted}`}>حساب جدید بسازید</p>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="mb-4">
           <Input
             label="نام"
