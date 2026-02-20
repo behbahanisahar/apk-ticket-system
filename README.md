@@ -715,10 +715,4 @@ npm run test:watch
 - CSRF protection
 - تمام endpoint‌ها (به جز auth) نیاز به authentication دارند
 
----
-
-## License
-
-MIT License
-
 </div>
