@@ -38,7 +38,7 @@ export function useTicket(id: string | undefined) {
 export function useCreateTicket() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { title: string; description: string; priority: string }) =>
+    mutationFn: (payload: { title: string; description: string; priority: string; images?: File[] }) =>
       createTicket(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.all });

@@ -23,11 +23,17 @@ export interface TicketResponse {
 
 import type { TicketStatus, TicketPriority } from '../constants/enums';
 
+export interface TicketImage {
+  id: number;
+  image: string;
+}
+
 export interface Ticket {
   id: number;
   ticket_number?: string;
   title: string;
   description: string;
+  images?: TicketImage[];
   priority: TicketPriority;
   status: TicketStatus;
   user: User;

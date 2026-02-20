@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { getDisplayName } from '../types';
 import { formatDateShort, formatDateTime } from '../lib/dateUtils';
 import { CopyableTicketNumber } from '../components/tickets/CopyableTicketNumber';
-import { toPersianDigits } from '../lib/utils';
+import { toPersianDigits, getImageUrl } from '../lib/utils';
 import { toast } from '../lib/toast';
 import { useTicket, useRespondToTicket, useDeleteTicket, useUpdateTicketStatus, useUpdateTicket } from '../hooks/useTickets';
 import { useQueryErrorToast } from '../hooks/useQueryErrorToast';
@@ -235,6 +235,24 @@ export default function TicketDetail() {
             <p className={`mt-5 whitespace-pre-wrap rounded-xl ${BG.muted} p-5 ${TEXT.label} leading-[1.6]`}>
               {ticket.description}
             </p>
+          )}
+          {ticket.images && ticket.images.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {ticket.images.map((img) => {
+                const url = getImageUrl(img.image);
+                return url ? (
+                  <div key={img.id} className="h-24 w-24 shrink-0">
+                    <img
+                      src={url}
+                      alt="تصویر ضمیمه"
+                      className="h-24 w-24 rounded-lg border border-slate-200 object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                ) : null;
+              })}
+            </div>
           )}
         </div>
 

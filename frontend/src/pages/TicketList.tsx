@@ -9,7 +9,7 @@ import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { usePagination } from '../hooks/usePagination';
 import { useQueryErrorToast } from '../hooks/useQueryErrorToast';
-import { Ticket } from '../types';
+import { Ticket, getDisplayName } from '../types';
 import { SORT_OPTIONS } from '../constants/tickets';
 import { TEXT, BORDER, BG } from '../theme';
 import { toast } from '../lib/toast';
@@ -78,9 +78,12 @@ export default function TicketList() {
               <Plus className="h-5 w-5" />
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" onClick={logout} className="rounded-xl">
-            <LogOut className="h-5 w-5 rtl:-scale-x-100" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-medium ${TEXT.muted}`}>{getDisplayName(user)}</span>
+            <Button variant="ghost" size="icon" onClick={logout} className="rounded-xl">
+              <LogOut className="h-5 w-5 rtl:-scale-x-100" />
+            </Button>
+          </div>
         </div>
       </header>
       <div className={`min-h-screen ${BG.page}`}>

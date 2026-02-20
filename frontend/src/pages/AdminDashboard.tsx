@@ -4,7 +4,8 @@ import { Select, Card, BackLink } from '../components/ui';
 import { APK_BRAND } from '../theme/brand';
 import { useTickets, useUpdateTicketStatus } from '../hooks/useTickets';
 import { usePagination } from '../hooks/usePagination';
-import { Ticket } from '../types';
+import { Ticket, getDisplayName } from '../types';
+import { useAuth } from '../context/AuthContext';
 import { TicketTable, TicketFilters, Pagination } from '../components/tickets';
 import { toast } from '../lib/toast';
 import { TEXT, BORDER, BG } from '../theme';
@@ -12,6 +13,7 @@ import { toPersianDigits } from '../lib/utils';
 import { SORT_OPTIONS, TicketStatus } from '../constants/tickets';
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
   const [ordering, setOrdering] = useState('-created_at');
   const [status, setStatus] = useState('all');
   const [priority, setPriority] = useState('all');
@@ -58,9 +60,12 @@ export default function AdminDashboard() {
           <div className="flex flex-1 justify-end">
             <BackLink to="/tickets" />
           </div>
-          <div className="flex items-center gap-2 rounded-xl bg-primary/5 px-4 py-2 ring-1 ring-primary/20">
-            <ClipboardList className="h-5 w-5 text-primary" />
-            <span className={`text-lg font-bold ${TEXT.heading}`}>پنل ادمین</span>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm font-medium ${TEXT.muted}`}>{getDisplayName(user)}</span>
+            <div className="flex items-center gap-2 rounded-xl bg-primary/5 px-4 py-2 ring-1 ring-primary/20">
+              <ClipboardList className="h-5 w-5 text-primary" />
+              <span className={`text-lg font-bold ${TEXT.heading}`}>پنل ادمین</span>
+            </div>
           </div>
         </div>
       </header>

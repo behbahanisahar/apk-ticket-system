@@ -52,8 +52,16 @@ export async function createTicket(payload: {
   title: string;
   description: string;
   priority: string;
+  images?: File[];
 }): Promise<Ticket> {
-  const { data } = await api.post<Ticket>('/tickets/', payload);
+  const formData = new FormData();
+  formData.append('title', payload.title);
+  formData.append('description', payload.description);
+  formData.append('priority', payload.priority);
+  if (payload.images?.length) {
+    payload.images.forEach((img) => formData.append('images', img));
+  }
+  const { data } = await api.post<Ticket>('/tickets/', formData);
   return data;
 }
 
